@@ -47,7 +47,7 @@
 <input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
 
 <label>Bank Kata Pembuka</label>
-<textarea id="pembuka" oninput="hitungMaksKombinasi()">Segar, Murni & Tanpa Bau Prengus
+<textarea id="pembuka" oninput="hitungMaksKombinasi()">Susu Kambing Murni, Segar & Tanpa Bau Prengus
 Alami, Tanpa Campuran Bahan Kimia
 Terjamin Higienis & Berkualitas
 Kaya Nutrisi & Cocok Untuk Keluarga
@@ -56,7 +56,17 @@ Rasa Original, Tanpa Rasa Amis
 Terbukti Menyehatkan Sejak Dulu
 Dijamin Halal & Bersertifikat
 Ingin Lebih Sehat? Coba Ini!
-Yuk, Ikuti Sunnah Rosul!</textarea>
+Yuk, Ikuti Sunnah Rosul!
+Lagi Cari Susu Kambing Asli?
+Paket Susu Kambing Siap Kirim
+Susu Kambing Kemasan Praktis
+Solusi Sehat Untuk Keluarga
+Bebas Bau Prengus, Dijamin Enak
+Susu Kambing Pilihan Ahli Gizi
+Diminum Rutin, Badan Makin Fit
+Susu Kambing Kualitas Premium
+Stok Terbatas, Buruan Order
+Rasa Creamy, Bikin Nagih</textarea>
 <button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi</button>
 
 <label>Bank Kata Promo</label>
@@ -69,7 +79,17 @@ Hemat Hingga 30 Ribu
 Paket Hemat Keluarga
 Voucher Belanja Rp10.000
 Bundling Hemat 2 Produk
-Diskon Spesial Akhir Pekan</textarea>
+Diskon Spesial Akhir Pekan
+Gratis Sample Produk
+Diskon Member Baru
+Beli 3 Harga 2
+Cashback Untuk Pembelian Kedua
+Promo Payday Spesial
+Diskon Ongkir 50%
+Bonus Merchandise Menarik
+Harga Coret Khusus Hari Ini
+Diskon Ekstra Weekday
+Beli Banyak Lebih Hemat</textarea>
 <button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi</button>
 
 <label>Pilih Kota/Kabupaten (Jabodetabek)</label>
@@ -89,7 +109,13 @@ Diskon Spesial Akhir Pekan</textarea>
 Bojongsari Kota Depok
 Cilodong Kota Depok
 Cimanggis Kota Depok
-Sawangan Kota Depok</textarea>
+Cinere Kota Depok
+Cipayung Kota Depok
+Limo Kota Depok
+Pancoran Mas Kota Depok
+Sawangan Kota Depok
+Sukmajaya Kota Depok
+Tapos Kota Depok</textarea>
 
 <label>Nomor HP</label>
 <input type="text" id="nomor" value="08141-3333-512">
@@ -116,10 +142,36 @@ Sawangan Kota Depok</textarea>
 let hasilData = [];
 let maksKombinasi = 0;
 let jumlahDiubahManual = false;
+let terakhirPembuka = -1, terakhirPromo = -1;
 
 const kamusKreatif = {
-  pembuka: ["Susu Kambing Murni Asli","Ingin Lebih Sehat?","Ikuti Sunnah Rosul Yuk!","Rasa Enak Tanpa Bau Amis","Diproses Higienis Setiap Hari","Direkomendasikan Ahli Gizi","Kenapa Harus Ragu Lagi?","Waktunya Beralih ke Alami!"],
-  promo: ["Diskon Bulan Ini","Beli Banyak Lebih Hemat","Promo Terbatas Minggu Ini","Free Ongkir Sekota","Harga Spesial Pelanggan Baru"]
+  pembuka: [
+    "Lagi Cari Susu Kambing Asli?",
+    "Paket Susu Kambing Siap Kirim",
+    "Susu Kambing Kemasan Praktis",
+    "Solusi Sehat Untuk Keluarga",
+    "Bebas Bau Prengus, Dijamin Enak",
+    "Susu Kambing Pilihan Ahli Gizi",
+    "Diminum Rutin, Badan Makin Fit",
+    "Susu Kambing Kualitas Premium",
+    "Stok Terbatas, Buruan Order",
+    "Rasa Creamy, Bikin Nagih",
+    "Direkomendasikan Ahli Gizi",
+    "Kenapa Harus Ragu Lagi?",
+    "Waktunya Beralih ke Alami!"
+  ],
+  promo: [
+    "Diskon Bulan Ini",
+    "Beli Banyak Lebih Hemat",
+    "Promo Terbatas Minggu Ini",
+    "Free Ongkir Sekota",
+    "Harga Spesial Pelanggan Baru",
+    "Gratis Sample Produk",
+    "Diskon Member Baru",
+    "Beli 3 Harga 2",
+    "Cashback Untuk Pembelian Kedua",
+    "Promo Payday Spesial"
+  ]
 };
 
 function rekomendasi(jenis) {
@@ -225,6 +277,29 @@ function acakAmbil(arr, n) {
   return [...arr].sort(()=>Math.random()-0.5).slice(0, n);
 }
 
+const templateSEO = [
+  "Jual {produk} {lokasi}",
+  "{produk} {lokasi}",
+  "Harga {produk} {lokasi}",
+  "{produk} Terdekat {lokasi}",
+  "Beli {produk} {lokasi}",
+  "Agen {produk} {lokasi}",
+  "Distributor {produk} {lokasi}",
+  "{produk} Murni {lokasi}",
+  "Toko {produk} {lokasi}",
+  "Supplier {produk} {lokasi}",
+  "{produk} Asli {lokasi}",
+  "Grosir {produk} {lokasi}",
+  "Cari {produk} {lokasi}",
+  "Order {produk} {lokasi}",
+  "Kios {produk} {lokasi}"
+];
+
+function buatKeywordSEO(produk, lokasi) {
+  const template = templateSEO[Math.floor(Math.random() * templateSEO.length)];
+  return template.replace('{produk}', produk).replace('{lokasi}', lokasi);
+}
+
 function generate() {
   const pembuka = document.getElementById('pembuka').value.trim().split('\n').filter(x=>x);
   const promo = document.getElementById('promo').value.trim().split('\n').filter(x=>x);
@@ -258,6 +333,8 @@ function generate() {
   hasilData = [];
   let idx = 0;
   const batchSize = 30;
+  terakhirPembuka = -1;
+  terakhirPromo = -1;
 
   function prosesBatch() {
     const batasAkhir = Math.min(idx + batchSize, dipilih.length);
@@ -265,75 +342,85 @@ function generate() {
       const id = dipilih[idx];
       const k = id % lokasi.length;
       let sisa = Math.floor(id / lokasi.length);
-      const j = sisa % promo.length;
-      const i = Math.floor(sisa / promo.length);
+      let j = sisa % promo.length;
+      let i = Math.floor(sisa / promo.length);
+
+      if (i === terakhirPembuka && pembuka.length > 1) {
+        i = (i + 1) % pembuka.length;
+      }
+      if (j === terakhirPromo && promo.length > 1) {
+        j = (j + 1) % promo.length;
+      }
+      terakhirPembuka = i;
+      terakhirPromo = j;
 
       const lokasiUtama = lokasi[k];
-      const kalimat = `${pembuka[i]}, ${nomor} ${promo[j]} Promo ${produk} Di ${lokasiUtama}`;
+      const kalimat = `${pembuka[i]}, ${nomor} ${promo[j]} untuk ${produk} di ${lokasiUtama}`;
 
       const lokasiLain = lokasi.filter(l => l !== lokasiUtama);
       const jumlahTambahan = Math.min(jumlahLokasiPerBaris - 1, lokasiLain.length);
       const lokasiTambahan = acakAmbil(lokasiLain, jumlahTambahan);
       const lokasiTerpilih = [lokasiUtama, ...lokasiTambahan];
 
-      const kw = lokasiTerpilih.map(lok => `Promo ${produk} Di ${lok}`);
+      const kw = lokasiTerpilih.map(lok => buatKeywordSEO(produk, lok));
       const tagFromKw = kw.map(kk => `#${kk.replace(/\s+/g,'').toLowerCase()}`);
 
-      hasilData.push({ kalimat, keyword: kw.join(', '), hashtag: tagFromKw.join(' ') });
+            const hashtagUtama = `#${produk.replace(/\s+/g,'').toLowerCase()}`;
+      const kalimatLengkap = `${kalimat}\n${kw.join(' | ')}\n${hashtagUtama} ${tagFromKw.join(' ')}`;
+
+      hasilData.push({
+        kalimat: kalimat,
+        keyword: kw.join(', '),
+        hashtag: `${hashtagUtama} ${tagFromKw.join(' ')}`
+      });
     }
+
     const persen = Math.round((idx / dipilih.length) * 100);
     progressBar.value = persen;
-    statusText.textContent = `Memproses... ${idx}/${dipilih.length} (${persen}%)`;
+    statusText.textContent = `Memproses ${idx} dari ${dipilih.length} kalimat...`;
+
     if (idx < dipilih.length) {
-      setTimeout(prosesBatch, 10);
+      setTimeout(prosesBatch, 0);
     } else {
-      tampilkanPreview();
-      statusText.textContent = `Selesai! ${dipilih.length} baris data siap diexport.`;
-      setTimeout(()=>{ progressBar.style.display='none'; }, 1500);
+      tampilkanHasil();
+      progressBar.value = 100;
+      statusText.textContent = `Selesai! ${dipilih.length} kalimat berhasil dibuat.`;
+      setTimeout(() => { progressBar.style.display = 'none'; }, 1500);
     }
   }
+
   prosesBatch();
 }
 
-function tampilkanPreview() {
-  const preview = hasilData.map((row, i) =>
-    `${i+1}. Kalimat: ${row.kalimat}\n   Keyword: ${row.keyword}\n   Hashtag: ${row.hashtag}\n`
-  ).join('\n');
-  document.getElementById('hasil').value = preview;
-}
-
-function escapeHtml(text) {
-  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function unduhExcel() {
-  if (hasilData.length === 0) { alert('Generate dulu ya sebelum download!'); return; }
-  const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
-  let table = '<table border="1"><tr><th>Kalimat</th><th>Keyword</th><th>Hashtag</th></tr>';
-  hasilData.forEach(row => {
-    table += `<tr><td>${escapeHtml(row.kalimat)}</td><td>${escapeHtml(row.keyword)}</td><td>${escapeHtml(row.hashtag)}</td></tr>`;
-  });
-  table += '</table>';
-  const blob = new Blob(['\ufeff', table], { type: 'application/vnd.ms-excel' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `promo_${produk}.xls`;
-  a.click();
-  URL.revokeObjectURL(url);
+function tampilkanHasil() {
+  const teks = hasilData.map(d => `${d.kalimat}\n${d.keyword}\n${d.hashtag}`).join('\n\n');
+  document.getElementById('hasil').value = teks;
 }
 
 function unduhTxt() {
-  const teks = document.getElementById('hasil').value;
-  if (!teks) { alert('Generate dulu ya sebelum download!'); return; }
-  const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
+  if (hasilData.length === 0) { alert('Belum ada hasil, generate dulu!'); return; }
+  const teks = hasilData.map(d => `${d.kalimat}\n${d.keyword}\n${d.hashtag}`).join('\n\n');
   const blob = new Blob([teks], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `kalimat_promo_${produk}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'hasil_promo.txt';
+  link.click();
+}
+
+function unduhExcel() {
+  if (hasilData.length === 0) { alert('Belum ada hasil, generate dulu!'); return; }
+  let csv = 'Kalimat,Keyword,Hashtag\n';
+  hasilData.forEach(d => {
+    const kalimat = `"${d.kalimat.replace(/"/g,'""')}"`;
+    const keyword = `"${d.keyword.replace(/"/g,'""')}"`;
+    const hashtag = `"${d.hashtag.replace(/"/g,'""')}"`;
+    csv += `${kalimat},${keyword},${hashtag}\n`;
+  });
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'hasil_promo.csv';
+  link.click();
 }
 
 window.onload = function() {
