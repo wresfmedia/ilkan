@@ -4,18 +4,23 @@
 <meta charset="UTF-8">
 <title>Generator Kalimat Promo Susu Kambing</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 10px; }
-  textarea { width: 100%; height: 150px; margin-bottom: 10px; }
-  input, button { padding: 8px; margin: 5px 0; }
-  #hasil { width: 100%; height: 300px; }
-  label { font-weight: bold; }
+  body { font-family: Arial, sans-serif; max-width: 850px; margin: 20px auto; padding: 10px; }
+  textarea { width: 100%; height: 140px; font-family: monospace; margin-bottom: 5px; }
+  input, button { padding: 8px 14px; margin: 5px 5px 5px 0; cursor: pointer; }
+  #hasil { width: 100%; height: 280px; }
+  label { font-weight: bold; display: block; margin-top: 10px; }
+  progress { width: 100%; height: 18px; margin: 8px 0; }
+  .btn-ai { background: #6c5ce7; color: white; border: none; border-radius: 4px; }
+  .btn-generate { background: #00b894; color: white; border: none; border-radius: 4px; }
+  .btn-download { background: #0984e3; color: white; border: none; border-radius: 4px; }
+  #statusText { font-size: 13px; color: #555; }
 </style>
 </head>
 <body>
 
-<h2>Generator Kalimat Promo (Anti Perulangan &amp; Anti Berdekatan)</h2>
+<h2>Generator Kalimat Promo Susu Kambing</h2>
 
-<label>Bank Kata Pembuka:</label>
+<label>Bank Kata Pembuka</label>
 <textarea id="pembuka">Ingin Lebih Sehat?
 Yuk, Ikuti Sunnah Rosul!
 Rasakan Khasiatnya!
@@ -25,19 +30,10 @@ Waktunya Hidup Berkualitas!
 Bikin Tubuh Makin Bugar!
 Warisan Nabi yang Menyehatkan!
 Baru Kenal Manfaatnya?
-Saatnya Rasakan Kesegarannya!
-Kenapa Harus Ragu Lagi?
-Ini Dia Solusi Sehatmu!
-Yuk, Mulai Hidup Sehat!
-Percaya Khasiat Alami?
-Waktunya Beralih ke Alami!
-Sudah Siap Lebih Bugar?
-Ini Rahasia Sehat Keluarga!
-Yuk, Coba Sekarang Juga!
-Sehatmu Prioritas Kami!
-Jangan Tunda Hidup Sehat!</textarea>
+Saatnya Rasakan Kesegarannya!</textarea>
+<button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi Kreatif</button>
 
-<label>Bank Kata Promo:</label>
+<label>Bank Kata Promo</label>
 <textarea id="promo">Diskon 20%
 Beli 2 Gratis 1
 Cashback 15%
@@ -47,53 +43,79 @@ Hemat Hingga 30 Ribu
 Paket Hemat Keluarga
 Voucher Belanja Rp10.000
 Potongan Harga Member Baru
-Bundling Hemat 2 Produk
-Gratis Sample Produk
-Diskon Spesial Akhir Pekan
-Extra Diskon 10%
-Promo Buy 1 Get 1
-Harga Coret Spesial
-Gratis Merchandise Menarik
-Diskon Member Eksklusif
-Paket Combo Hemat
-Cashback Hingga 25rb
-Diskon Awal Bulan</textarea>
+Bundling Hemat 2 Produk</textarea>
+<button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi Kreatif</button>
 
-<label>Bank Kata Closing:</label>
-<textarea id="closing">Lagi Cari Susu Kambing
-Paket Susu Kambing
-Yang Jual Susu Kambing
-Order Susu Kambing
-Stok Susu Kambing
-Cari Susu Kambing Asli
-Langganan Susu Kambing
-Info Susu Kambing
-Beli Susu Kambing
-Cek Susu Kambing
-Konsultasi Susu Kambing
-Tanya Susu Kambing
-Coba Susu Kambing
-Pesan Susu Kambing
-Dapatkan Susu Kambing
-Rekomendasi Susu Kambing
-Testimoni Susu Kambing
-Referensi Susu Kambing
-Jaminan Susu Kambing
-Kualitas Susu Kambing</textarea>
+<label>Bank Kata Closing (jangan sertakan kata "Susu Kambing", nanti ditambahkan otomatis)</label>
+<textarea id="closing">Lagi Cari
+Paket
+Yang Jual
+Order
+Stok
+Cari Yang Asli
+Langganan
+Info
+Beli
+Cek</textarea>
+<button class="btn-ai" onclick="rekomendasi('closing')">✨ Rekomendasi Kreatif</button>
 
-<label>Nomor HP:</label><br>
-<input type="text" id="nomor" value="08141-3333-512"><br>
+<label>Nomor HP</label>
+<input type="text" id="nomor" value="08141-3333-512">
 
-<label>Jumlah Kalimat:</label><br>
-<input type="number" id="jumlah" value="100"><br>
+<label>Jumlah Kalimat</label>
+<input type="number" id="jumlah" value="100">
 
-<button onclick="generate()">Generate Kalimat</button>
-<button onclick="unduh()">Download .txt</button>
+<br>
+<button class="btn-generate" onclick="generate()">🚀 Generate Kalimat</button>
+<button class="btn-download" onclick="unduh()">⬇ Download .txt</button>
+
+<progress id="progressBar" value="0" max="100" style="display:none;"></progress>
+<div id="statusText"></div>
 
 <h3>Hasil:</h3>
 <textarea id="hasil" readonly></textarea>
 
 <script>
+const kamusKreatif = {
+  pembuka: [
+    "Kenapa Harus Ragu Lagi?", "Ini Dia Solusi Sehatmu!", "Yuk, Mulai Hidup Sehat!",
+    "Percaya Khasiat Alami?", "Waktunya Beralih ke Alami!", "Sudah Siap Lebih Bugar?",
+    "Ini Rahasia Sehat Keluarga!", "Yuk, Coba Sekarang Juga!", "Sehatmu Prioritas Kami!",
+    "Jangan Tunda Hidup Sehat!", "Mau Tubuh Lebih Fit?", "Sehat Dimulai Dari Sini!",
+    "Yuk, Perbaiki Pola Hidup!", "Kenali Manfaat Alaminya!", "Waktunya Berubah Jadi Sehat!"
+  ],
+  promo: [
+    "Gratis Sample Produk", "Diskon Spesial Akhir Pekan", "Extra Diskon 10%",
+    "Promo Buy 1 Get 1", "Harga Coret Spesial", "Gratis Merchandise Menarik",
+    "Diskon Member Eksklusif", "Paket Combo Hemat", "Cashback Hingga 25rb",
+    "Diskon Awal Bulan", "Promo Serba 15 Ribu", "Diskon Kejutan Hari Ini",
+    "Gratis Ongkir Area Tertentu", "Harga Grosir Terbatas", "Diskon Loyalitas Pelanggan"
+  ],
+  closing: [
+    "Konsultasi", "Tanya", "Coba", "Pesan", "Dapatkan", "Rekomendasi",
+    "Testimoni", "Referensi", "Jaminan", "Kualitas", "Manfaat", "Khasiat",
+    "Keunggulan", "Kesegaran", "Kemurnian"
+  ]
+};
+
+function rekomendasi(jenis) {
+  const textarea = document.getElementById(jenis);
+  const existing = textarea.value.trim().split('\n').filter(x => x);
+  const pool = kamusKreatif[jenis].filter(k => !existing.includes(k));
+
+  if (pool.length === 0) {
+    alert('Kamus kreatif untuk kategori ini sudah habis dipakai semua!');
+    return;
+  }
+
+  // Ambil 5 kata acak dari pool yang belum dipakai
+  const shuffled = pool.sort(() => Math.random() - 0.5);
+  const tambahan = shuffled.slice(0, Math.min(5, pool.length));
+
+  textarea.value = existing.concat(tambahan).join('\n');
+  alert('Ditambahkan ' + tambahan.length + ' kata baru: \n' + tambahan.join('\n'));
+}
+
 function generate() {
   const pembuka = document.getElementById('pembuka').value.trim().split('\n').filter(x => x);
   const promo = document.getElementById('promo').value.trim().split('\n').filter(x => x);
@@ -101,14 +123,79 @@ function generate() {
   const nomor = document.getElementById('nomor').value;
   let jumlah = parseInt(document.getElementById('jumlah').value);
 
+  if (pembuka.length === 0 || promo.length === 0 || closing.length === 0) {
+    alert('Semua bank kata harus diisi minimal 1 baris!');
+    return;
+  }
+
   const total = pembuka.length * promo.length * closing.length;
   if (jumlah > total) {
     alert('Total kombinasi unik cuma ' + total + '. Ditampilkan semua (' + total + ' kalimat).');
     jumlah = total;
   }
 
-  // Fisher-Yates Shuffle: mengacak urutan angka 0..total-1 secara adil
+  const progressBar = document.getElementById('progressBar');
+  const statusText = document.getElementById('statusText');
+  progressBar.style.display = 'block';
+  progressBar.value = 0;
+  statusText.textContent = 'Memulai proses...';
+
+  // Fisher-Yates Shuffle: algoritma pengacakan yang adil untuk semua kemungkinan index
   let indexArray = Array.from({length: total}, (_, i) => i);
   for (let i = indexArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [indexArray[i], indexArray
+    [indexArray[i], indexArray[j]] = [indexArray[j], indexArray[i]];
+  }
+
+  const dipilih = indexArray.slice(0, jumlah);
+  const hasilKalimat = [];
+  let lastPembuka = null;
+
+  // Diproses per-batch (setTimeout) supaya browser tidak "freeze" saat jumlah besar
+  let idx = 0;
+  const batchSize = 50;
+
+  function prosesBatch() {
+    const batasAkhir = Math.min(idx + batchSize, dipilih.length);
+
+    for (; idx < batasAkhir; idx++) {
+      const id = dipilih[idx];
+      const k = id % closing.length;
+      let sisa = Math.floor(id / closing.length);
+      const j = sisa % promo.length;
+      const i = Math.floor(sisa / promo.length);
+
+      hasilKalimat.push(`${pembuka[i]} ${nomor} ${promo[j]} ${closing[k]} Susu Kambing`);
+    }
+
+    const persen = Math.round((idx / dipilih.length) * 100);
+    progressBar.value = persen;
+    statusText.textContent = `Memproses... ${idx}/${dipilih.length} kalimat (${persen}%)`;
+
+    if (idx < dipilih.length) {
+      setTimeout(prosesBatch, 10);
+    } else {
+      document.getElementById('hasil').value = hasilKalimat.join('\n');
+      statusText.textContent = `Selesai! ${hasilKalimat.length} kalimat unik berhasil dibuat.`;
+      setTimeout(() => { progressBar.style.display = 'none'; }, 1500);
+    }
+  }
+
+  prosesBatch();
+}
+
+function unduh() {
+  const teks = document.getElementById('hasil').value;
+  if (!teks) { alert('Generate kalimat dulu ya!'); return; }
+  const blob = new Blob([teks], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kalimat_promo.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
