@@ -6,7 +6,8 @@
 <style>
   body { font-family: Arial, sans-serif; max-width: 850px; margin: 20px auto; padding: 10px; }
   textarea { width: 100%; height: 100px; font-family: monospace; margin-bottom: 5px; box-sizing: border-box; }
-  input, button { padding: 8px 14px; margin: 5px 5px 5px 0; cursor: pointer; }
+  input, button, select { padding: 8px 14px; margin: 5px 5px 5px 0; cursor: pointer; }
+  select { width: 60%; box-sizing: border-box; }
   #hasil { width: 100%; height: 320px; box-sizing: border-box; }
   label { font-weight: bold; display: block; margin-top: 10px; }
   progress { width: 100%; height: 18px; margin: 8px 0; }
@@ -14,12 +15,15 @@
   .btn-generate { background: #00b894; color: white; border: none; border-radius: 4px; }
   .btn-download { background: #0984e3; color: white; border: none; border-radius: 4px; }
   .btn-excel { background: #1d6f42; color: white; border: none; border-radius: 4px; }
-  .btn-cari { background: #e17055; color: white; border: none; border-radius: 4px; }
-  #statusText, #statusCari, #maksInfo { font-size: 13px; color: #555; }
-  .info-text { font-size: 12px; color: #888; font-weight: normal; }
+  .btn-kecil { background: #636e72; color: white; border: none; border-radius: 4px; font-size: 12px; padding: 6px 10px; }
+  #statusText, #maksInfo { font-size: 13px; color: #555; }
   details { background: #f4f6f8; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; }
   summary { font-weight: bold; cursor: pointer; font-size: 16px; color: #2d3436; }
   details ol { margin-top: 10px; line-height: 1.7; }
+  #daftarKecamatan { display:none; margin-top:10px; border:1px solid #ddd; border-radius:6px; padding:10px; max-height:220px; overflow-y:auto; background:#fafafa; }
+  #daftarKecamatan label { font-weight: normal; display:block; margin:4px 0; }
+  #daftarKecamatan input[type=checkbox] { width:auto; margin-right:6px; }
+  #kontrolKecamatan { display:none; margin-top:8px; }
 </style>
 </head>
 <body>
@@ -29,12 +33,12 @@
 <details open>
   <summary>📘 Cara Penggunaan (klik untuk buka/tutup)</summary>
   <ol>
-    <li>Isi kolom <b>Nama Produk</b> sesuai barang yang mau dipromosikan.</li>
-    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris untuk satu pilihan. Boleh pakai tombol <b>✨ Rekomendasi</b>.</li>
-    <li>Ketik nama kota/kabupaten di <b>Cari Otomatis Kecamatan</b> (contoh: "Depok") lalu klik <b>🔍 Cari & Isi Otomatis</b>.</li>
+    <li>Isi <b>Nama Produk</b> sesuai barang yang mau dipromosikan.</li>
+    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris satu pilihan. Boleh pakai tombol <b>✨ Rekomendasi</b>.</li>
+    <li>Pilih wilayah dari dropdown <b>Pilih Kota/Kabupaten</b> (khusus Jabodetabek) — kecamatannya otomatis muncul sebagai checklist, centang yang mau dipakai, klik <b>➕ Tambahkan ke Bank Lokasi</b>.</li>
     <li>Isi <b>Nomor HP</b>, tentukan <b>Jumlah Kalimat</b> dan <b>Jumlah Variasi Lokasi per Baris</b>.</li>
     <li>Klik <b>🚀 Generate</b>, tunggu progress bar sampai 100%.</li>
-    <li>Download hasil lewat <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b>.</li>
+    <li>Download lewat <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b>.</li>
   </ol>
 </details>
 
@@ -50,13 +54,8 @@ Diproses Langsung Dari Peternak
 Rasa Original, Tanpa Rasa Amis
 Terbukti Menyehatkan Sejak Dulu
 Dijamin Halal & Bersertifikat
-Diminati Banyak Pelanggan Setia
-Cocok Untuk Sunnah Harian Anda
 Ingin Lebih Sehat? Coba Ini!
-Yuk, Ikuti Sunnah Rosul!
-Sudah Coba Yang Murni?
-Jaga Imun Secara Alami!
-Waktunya Hidup Berkualitas!</textarea>
+Yuk, Ikuti Sunnah Rosul!</textarea>
 <button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi</button>
 
 <label>Bank Kata Promo</label>
@@ -68,39 +67,35 @@ Bonus Botol Kedua
 Hemat Hingga 30 Ribu
 Paket Hemat Keluarga
 Voucher Belanja Rp10.000
-Potongan Harga Member Baru
 Bundling Hemat 2 Produk
-Gratis Sample Produk
-Diskon Spesial Akhir Pekan
-Extra Diskon 10%
-Promo Buy 1 Get 1
-Harga Coret Spesial</textarea>
+Diskon Spesial Akhir Pekan</textarea>
 <button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi</button>
 
-<label>Cari Otomatis Kecamatan Berdasarkan Nama Kota</label>
-<input type="text" id="cariKota" placeholder="Contoh: Depok, Bandung, Surabaya" style="width:60%; box-sizing:border-box;">
-<button class="btn-cari" onclick="cariKecamatan()">🔍 Cari & Isi Otomatis</button>
-<div id="statusCari"></div>
+<label>Pilih Kota/Kabupaten (Jabodetabek)</label>
+<select id="pilihKota" onchange="tampilkanCeklisKecamatan()">
+  <option value="">-- Pilih Kota --</option>
+</select>
+<button class="btn-kecil" onclick="tambahKeBankLokasi()">➕ Tambahkan ke Bank Lokasi</button>
+
+<div id="daftarKecamatan"></div>
+<div id="kontrolKecamatan">
+  <button class="btn-kecil" onclick="ceklisSemua(true)">Pilih Semua</button>
+  <button class="btn-kecil" onclick="ceklisSemua(false)">Batal Semua</button>
+</div>
 
 <label>Bank Lokasi/Kota</label>
 <textarea id="lokasi">Beji Kota Depok
 Bojongsari Kota Depok
 Cilodong Kota Depok
 Cimanggis Kota Depok
-Cinere Kota Depok
-Cipayung Kota Depok
-Limo Kota Depok
-Pancoran Mas Kota Depok
-Sawangan Kota Depok
-Sukmajaya Kota Depok
-Tapos Kota Depok</textarea>
+Sawangan Kota Depok</textarea>
 
 <label>Nomor HP</label>
 <input type="text" id="nomor" value="08141-3333-512">
 
 <label>Jumlah Kalimat</label>
 <input type="number" id="jumlah" value="20">
-<div id="maksInfo">Maksimal kombinasi unik: 2475 (Pembuka 15 x Promo 15 x Lokasi 11).</div>
+<div id="maksInfo">Maksimal kombinasi akan dihitung otomatis.</div>
 
 <label>Jumlah Variasi Lokasi per Baris</label>
 <input type="number" id="jumlahLokasiPerBaris" value="5">
@@ -116,11 +111,11 @@ Tapos Kota Depok</textarea>
 <h3>Preview Hasil:</h3>
 <textarea id="hasil" readonly></textarea>
 
-<script>
+  <script>
 let hasilData = [];
 
 const kamusKreatif = {
-  pembuka: ["Tanpa Pengawet & Bahan Tambahan","Diminum Rutin, Badan Makin Fit","Diproses Higienis Setiap Hari","Rasa Enak, Tanpa Bau Menyengat","Direkomendasikan Ahli Gizi","Kenapa Harus Ragu Lagi?","Percaya Khasiat Alami?","Waktunya Beralih ke Alami!"],
+  pembuka: ["Susu Kambing Murni Asli","Ingin Lebih Sehat?","Ikuti Sunnah Rosul Yuk!","Rasa Enak Tanpa Bau Amis","Diproses Higienis Setiap Hari","Direkomendasikan Ahli Gizi","Kenapa Harus Ragu Lagi?","Waktunya Beralih ke Alami!"],
   promo: ["Diskon Bulan Ini","Beli Banyak Lebih Hemat","Promo Terbatas Minggu Ini","Free Ongkir Sekota","Harga Spesial Pelanggan Baru"]
 };
 
@@ -143,99 +138,63 @@ function hitungMaksKombinasi() {
   return total;
 }
 
-const SUMBER_DATA = [
-  {
-    nama: "jsDelivr CDN",
-    provinces: "https://cdn.jsdelivr.net/gh/emsifa/api-wilayah-indonesia@master/api/provinces.json",
-    regencies: (id) => `https://cdn.jsdelivr.net/gh/emsifa/api-wilayah-indonesia@master/api/regencies/${id}.json`,
-    districts: (id) => `https://cdn.jsdelivr.net/gh/emsifa/api-wilayah-indonesia@master/api/districts/${id}.json`
-  },
-  {
-    nama: "emsifa GitHub Pages",
-    provinces: "https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json",
-    regencies: (id) => `https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${id}.json`,
-    districts: (id) => `https://emsifa.github.io/api-wilayah-indonesia/api/districts/${id}.json`
-  }
-];
+const DATA_WILAYAH = {
+  "Kota Jakarta Pusat": ["Cempaka Putih","Gambir","Johar Baru","Kemayoran","Menteng","Sawah Besar","Senen","Tanah Abang"],
+  "Kota Jakarta Utara": ["Cilincing","Kelapa Gading","Koja","Pademangan","Penjaringan","Tanjung Priok"],
+  "Kota Jakarta Barat": ["Cengkareng","Grogol Petamburan","Kalideres","Kebon Jeruk","Kembangan","Palmerah","Taman Sari","Tambora"],
+  "Kota Jakarta Selatan": ["Cilandak","Jagakarsa","Kebayoran Baru","Kebayoran Lama","Mampang Prapatan","Pancoran","Pasar Minggu","Pesanggrahan","Setiabudi","Tebet"],
+  "Kota Jakarta Timur": ["Cakung","Ciracas","Duren Sawit","Jatinegara","Kramat Jati","Makasar","Matraman","Pasar Rebo","Pulo Gadung"],
+  "Kota Bogor": ["Bogor Barat","Bogor Selatan","Bogor Tengah","Bogor Timur","Bogor Utara","Tanah Sareal"],
+  "Kabupaten Bogor": ["Cibinong","Citeureup","Gunung Putri","Cileungsi","Jonggol","Cigudeg","Ciampea","Ciomas","Dramaga","Leuwiliang","Parung","Babakan Madang"],
+  "Kota Depok": ["Beji","Bojongsari","Cilodong","Cimanggis","Cinere","Cipayung","Limo","Pancoran Mas","Sawangan","Sukmajaya","Tapos"],
+  "Kota Tangerang": ["Batuceper","Benda","Cibodas","Ciledug","Cipondoh","Jatiuwung","Karang Tengah","Karawaci","Larangan","Neglasari","Periuk","Pinang","Tangerang"],
+  "Kota Tangerang Selatan": ["Ciputat","Ciputat Timur","Pamulang","Pondok Aren","Serpong","Serpong Utara","Setu"],
+  "Kabupaten Tangerang": ["Balaraja","Cikupa","Curug","Kelapa Dua","Kosambi","Legok","Pagedangan","Panongan","Pasar Kemis","Sepatan","Tigaraksa"],
+  "Kota Bekasi": ["Bantargebang","Bekasi Barat","Bekasi Selatan","Bekasi Timur","Bekasi Utara","Jatiasih","Jatisampurna","Medan Satria","Mustika Jaya","Pondok Gede","Pondok Melati","Rawalumbu"],
+  "Kabupaten Bekasi": ["Cikarang Barat","Cikarang Pusat","Cikarang Selatan","Cikarang Timur","Cikarang Utara","Cibitung","Cibarusah","Tambun Selatan","Tambun Utara","Setu"]
+};
 
-async function fetchJsonFallback(urlGetter, ...args) {
-  let lastError;
-  for (const sumber of SUMBER_DATA) {
-    try {
-      const target = urlGetter(sumber);
-      const url = typeof target === 'function' ? target(...args) : target;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status} dari ${sumber.nama}`);
-      return await res.json();
-    } catch (err) {
-      lastError = err;
-      console.warn(`Gagal ambil data dari ${sumber.nama}:`, err.message);
-    }
-  }
-  throw lastError;
+function populateKotaDropdown() {
+  const sel = document.getElementById('pilihKota');
+  Object.keys(DATA_WILAYAH).forEach(kota => {
+    const opt = document.createElement('option');
+    opt.value = kota;
+    opt.textContent = kota;
+    sel.appendChild(opt);
+  });
 }
 
-async function ambilProvinces() {
-  return fetchJsonFallback(sumber => sumber.provinces);
-}
-async function ambilRegencies(id) {
-  return fetchJsonFallback(sumber => sumber.regencies, id);
-}
-async function ambilDistricts(id) {
-  return fetchJsonFallback(sumber => sumber.districts, id);
-}
+function tampilkanCeklisKecamatan() {
+  const kota = document.getElementById('pilihKota').value;
+  const box = document.getElementById('daftarKecamatan');
+  const kontrol = document.getElementById('kontrolKecamatan');
+  if (!kota) { box.style.display='none'; kontrol.style.display='none'; box.innerHTML=''; return; }
 
-async function fetchRegenciesBertahap(provinces, statusCari, batchSize = 6) {
-  let allLists = [];
-  for (let i = 0; i < provinces.length; i += batchSize) {
-    const batch = provinces.slice(i, i + batchSize);
-    statusCari.textContent = `Memeriksa provinsi ${i + 1}–${Math.min(i + batchSize, provinces.length)} dari ${provinces.length}...`;
-    const hasil = await Promise.all(
-      batch.map(p => ambilRegencies(p.id).catch(() => []))
-    );
-    allLists.push(...hasil);
-  }
-  return allLists;
+  const kecamatanList = DATA_WILAYAH[kota];
+  box.innerHTML = kecamatanList.map(k =>
+    `<label><input type="checkbox" value="${k}"> ${k}</label>`
+  ).join('');
+  box.style.display = 'block';
+  kontrol.style.display = 'block';
 }
 
-async function cariKecamatan() {
-  const kotaInput = document.getElementById('cariKota').value.trim();
-  const statusCari = document.getElementById('statusCari');
-  if (!kotaInput) { alert('Ketik nama kota/kabupaten dulu, contoh: Depok'); return; }
+function ceklisSemua(status) {
+  document.querySelectorAll('#daftarKecamatan input[type=checkbox]').forEach(cb => cb.checked = status);
+}
 
-  statusCari.textContent = 'Mencari data provinsi...';
-  try {
-    const provinces = await ambilProvinces();
-    const regencyLists = await fetchRegenciesBertahap(provinces, statusCari);
+function tambahKeBankLokasi() {
+  const kota = document.getElementById('pilihKota').value;
+  if (!kota) { alert('Pilih kota dulu ya!'); return; }
+  const checked = [...document.querySelectorAll('#daftarKecamatan input[type=checkbox]:checked')].map(cb => cb.value);
+  if (checked.length === 0) { alert('Centang minimal satu kecamatan dulu!'); return; }
 
-    let found = null;
-    for (const list of regencyLists) {
-      const match = list.find(r => r.name.toLowerCase().includes(kotaInput.toLowerCase()));
-      if (match) { found = match; break; }
-    }
-
-    if (!found) {
-      statusCari.textContent = '';
-      alert(`"${kotaInput}" tidak ditemukan. Coba cek penulisannya, misal "Depok" bukan "Depoq".`);
-      return;
-    }
-
-    statusCari.textContent = `Ditemukan: ${found.name}. Mengambil daftar kecamatan...`;
-    const districts = await ambilDistricts(found.id);
-
-    const lokasiBaru = districts.map(d => `${d.name} ${found.name}`);
-    const ta = document.getElementById('lokasi');
-    const existing = ta.value.trim().split('\n').filter(x => x);
-    const gabungan = [...new Set([...existing, ...lokasiBaru])];
-    ta.value = gabungan.join('\n');
-
-    statusCari.textContent = `Berhasil! ${districts.length} kecamatan dari "${found.name}" ditambahkan ke Bank Lokasi.`;
-    hitungMaksKombinasi();
-  } catch (err) {
-    statusCari.textContent = '';
-    alert('Gagal mengambil data dari semua sumber. Detail: ' + err.message);
-    console.error(err);
-  }
+  const lokasiBaru = checked.map(k => `${k} ${kota}`);
+  const ta = document.getElementById('lokasi');
+  const existing = ta.value.trim().split('\n').filter(x => x);
+  const gabungan = [...new Set([...existing, ...lokasiBaru])];
+  ta.value = gabungan.join('\n');
+  hitungMaksKombinasi();
+  alert(`${checked.length} kecamatan dari "${kota}" berhasil ditambahkan.`);
 }
 
 function acakAmbil(arr, n) {
@@ -260,7 +219,7 @@ function generate() {
 
   const total = hitungMaksKombinasi();
   if (jumlah > total) {
-    alert(`Bank kata saat ini cuma bisa hasilkan maksimal ${total} kombinasi unik. Jumlah otomatis disesuaikan jadi ${total}.`);
+    alert(`Bank kata cuma bisa hasilkan maksimal ${total} kombinasi unik. Jumlah disesuaikan jadi ${total}.`);
     jumlah = total;
     document.getElementById('jumlah').value = total;
   }
@@ -300,11 +259,7 @@ function generate() {
       const kw = lokasiTerpilih.map(lok => `Promo ${produk} Di ${lok}`);
       const tagFromKw = kw.map(kk => `#${kk.replace(/\s+/g,'').toLowerCase()}`);
 
-      hasilData.push({
-        kalimat: kalimat,
-        keyword: kw.join(', '),
-        hashtag: tagFromKw.join(' ')
-      });
+      hasilData.push({ kalimat, keyword: kw.join(', '), hashtag: tagFromKw.join(' ') });
     }
     const persen = Math.round((idx / dipilih.length) * 100);
     progressBar.value = persen;
@@ -360,6 +315,11 @@ function unduhTxt() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+window.onload = function() {
+  populateKotaDropdown();
+  hitungMaksKombinasi();
+};
 </script>
 </body>
 </html>
