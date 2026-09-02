@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Generator Kalimat Promo Susu Kambing</title>
+<title>Generator Kalimat Promo</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 850px; margin: 20px auto; padding: 10px; }
   textarea { width: 100%; height: 100px; font-family: monospace; margin-bottom: 5px; box-sizing: border-box; }
@@ -20,32 +20,28 @@
   details { background: #f4f6f8; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; }
   summary { font-weight: bold; cursor: pointer; font-size: 16px; color: #2d3436; }
   details ol { margin-top: 10px; line-height: 1.7; }
-  details code { background: #dfe6e9; padding: 2px 5px; border-radius: 3px; }
 </style>
 </head>
 <body>
 
-<h2>Generator Kalimat Promo Susu Kambing</h2>
+<h2>Generator Kalimat Promo</h2>
 
 <details open>
   <summary>📘 Cara Penggunaan (klik untuk buka/tutup)</summary>
   <ol>
     <li>Isi kolom <b>Nama Produk</b> sesuai barang yang mau dipromosikan.</li>
-    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris untuk satu pilihan. Boleh pakai tombol <b>✨ Rekomendasi</b> kalau butuh ide tambahan otomatis.</li>
-    <li>Untuk lokasi, kamu bisa ketik nama kota/kabupaten di kolom <b>Cari Otomatis Kecamatan</b> (contoh: "Depok") lalu klik <b>🔍 Cari & Isi Otomatis</b> — kecamatan-kecamatannya akan otomatis masuk ke Bank Lokasi dan angka <b>Maksimal Kombinasi</b> langsung update. Fitur ini butuh koneksi internet. Kamu juga tetap bisa mengetik/mengedit manual di Bank Lokasi.</li>
-    <li>Isi <b>Nomor HP</b> yang mau dicantumkan di setiap kalimat.</li>
-    <li>Tentukan <b>Jumlah Kalimat</b> yang mau dibuat. Aplikasi otomatis membatasi jumlahnya kalau melebihi kombinasi maksimal yang tersedia.</li>
-    <li>Tentukan <b>Jumlah Variasi Lokasi per Baris</b> — menentukan berapa kota muncul di kolom Keyword dan Hashtag tiap baris (tidak memengaruhi jumlah kombinasi maksimal, hanya memengaruhi isi tiap baris).</li>
+    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris untuk satu pilihan. Boleh pakai tombol <b>✨ Rekomendasi</b>.</li>
+    <li>Ketik nama kota/kabupaten di <b>Cari Otomatis Kecamatan</b> (contoh: "Depok") lalu klik <b>🔍 Cari & Isi Otomatis</b>.</li>
+    <li>Isi <b>Nomor HP</b>, tentukan <b>Jumlah Kalimat</b> dan <b>Jumlah Variasi Lokasi per Baris</b>.</li>
     <li>Klik <b>🚀 Generate</b>, tunggu progress bar sampai 100%.</li>
-    <li>Cek hasil di kotak <b>Preview Hasil</b>, lalu klik <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b> untuk menyimpan.</li>
+    <li>Download hasil lewat <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b>.</li>
   </ol>
-  <p><b>Catatan:</b> Proses generate kalimat berjalan offline di browser kamu. Hanya fitur "Cari Otomatis Kecamatan" yang membutuhkan internet karena mengambil data dari sumber wilayah resmi Indonesia (via CDN jsDelivr agar lebih stabil), diambil bertahap per 6 provinsi supaya tidak dibatasi server.</p>
 </details>
 
 <label>Nama Produk</label>
 <input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
 
-<label>Bank Kata Pembuka <span class="info-text">(deskripsi/kualitas produk, satu baris satu pilihan)</span></label>
+<label>Bank Kata Pembuka</label>
 <textarea id="pembuka">Segar, Murni & Tanpa Bau Prengus
 Alami, Tanpa Campuran Bahan Kimia
 Terjamin Higienis & Berkualitas
@@ -86,7 +82,7 @@ Harga Coret Spesial</textarea>
 <button class="btn-cari" onclick="cariKecamatan()">🔍 Cari & Isi Otomatis</button>
 <div id="statusCari"></div>
 
-<label>Bank Lokasi/Kota <span class="info-text">(tidak akan berulang dalam 1 baris, satu baris satu lokasi)</span></label>
+<label>Bank Lokasi/Kota</label>
 <textarea id="lokasi">Beji Kota Depok
 Bojongsari Kota Depok
 Cilodong Kota Depok
@@ -147,7 +143,6 @@ function hitungMaksKombinasi() {
   return total;
 }
 
-// --- Sumber data wilayah, dengan fallback berlapis ---
 const SUMBER_DATA = [
   {
     nama: "jsDelivr CDN",
@@ -163,11 +158,12 @@ const SUMBER_DATA = [
   }
 ];
 
-async fetchJsonFallback(urlGetter, ...args) {
+async function fetchJsonFallback(urlGetter, ...args) {
   let lastError;
   for (const sumber of SUMBER_DATA) {
     try {
-      const url = typeof urlGetter(sumber) === 'function' ? urlGetter(sumber)(...args) : urlGetter(sumber);
+      const target = urlGetter(sumber);
+      const url = typeof target === 'function' ? target(...args) : target;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status} dari ${sumber.nama}`);
       return await res.json();
@@ -210,7 +206,6 @@ async function cariKecamatan() {
   statusCari.textContent = 'Mencari data provinsi...';
   try {
     const provinces = await ambilProvinces();
-
     const regencyLists = await fetchRegenciesBertahap(provinces, statusCari);
 
     let found = null;
@@ -238,7 +233,7 @@ async function cariKecamatan() {
     hitungMaksKombinasi();
   } catch (err) {
     statusCari.textContent = '';
-    alert('Gagal mengambil data dari semua sumber yang dicoba. Detail teknis: ' + err.message + '\n\nKemungkinan koneksi ke server data wilayah sedang terblokir (misal oleh ekstensi ad-blocker) atau server sedang down. Coba nonaktifkan sementara ekstensi ad-blocker/VPN, lalu coba lagi.');
+    alert('Gagal mengambil data dari semua sumber. Detail: ' + err.message);
     console.error(err);
   }
 }
@@ -264,6 +259,107 @@ function generate() {
   if (jumlahLokasiPerBaris < 1) jumlahLokasiPerBaris = 1;
 
   const total = hitungMaksKombinasi();
-
   if (jumlah > total) {
-    alert(`Bank kata saat ini cuma bisa hasilkan maksimal \${total} kombinas
+    alert(`Bank kata saat ini cuma bisa hasilkan maksimal ${total} kombinasi unik. Jumlah otomatis disesuaikan jadi ${total}.`);
+    jumlah = total;
+    document.getElementById('jumlah').value = total;
+  }
+
+  const progressBar = document.getElementById('progressBar');
+  const statusText = document.getElementById('statusText');
+  progressBar.style.display = 'block';
+  progressBar.value = 0;
+
+  let indexArray = Array.from({length: total}, (_, i) => i);
+  for (let i = indexArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indexArray[i], indexArray[j]] = [indexArray[j], indexArray[i]];
+  }
+  const dipilih = indexArray.slice(0, jumlah);
+  hasilData = [];
+  let idx = 0;
+  const batchSize = 30;
+
+  function prosesBatch() {
+    const batasAkhir = Math.min(idx + batchSize, dipilih.length);
+    for (; idx < batasAkhir; idx++) {
+      const id = dipilih[idx];
+      const k = id % lokasi.length;
+      let sisa = Math.floor(id / lokasi.length);
+      const j = sisa % promo.length;
+      const i = Math.floor(sisa / promo.length);
+
+      const lokasiUtama = lokasi[k];
+      const kalimat = `${pembuka[i]}, ${nomor} ${promo[j]} Promo ${produk} Di ${lokasiUtama}`;
+
+      const lokasiLain = lokasi.filter(l => l !== lokasiUtama);
+      const jumlahTambahan = Math.min(jumlahLokasiPerBaris - 1, lokasiLain.length);
+      const lokasiTambahan = acakAmbil(lokasiLain, jumlahTambahan);
+      const lokasiTerpilih = [lokasiUtama, ...lokasiTambahan];
+
+      const kw = lokasiTerpilih.map(lok => `Promo ${produk} Di ${lok}`);
+      const tagFromKw = kw.map(kk => `#${kk.replace(/\s+/g,'').toLowerCase()}`);
+
+      hasilData.push({
+        kalimat: kalimat,
+        keyword: kw.join(', '),
+        hashtag: tagFromKw.join(' ')
+      });
+    }
+    const persen = Math.round((idx / dipilih.length) * 100);
+    progressBar.value = persen;
+    statusText.textContent = `Memproses... ${idx}/${dipilih.length} (${persen}%)`;
+    if (idx < dipilih.length) {
+      setTimeout(prosesBatch, 10);
+    } else {
+      tampilkanPreview();
+      statusText.textContent = `Selesai! ${dipilih.length} baris data siap diexport.`;
+      setTimeout(()=>{ progressBar.style.display='none'; }, 1500);
+    }
+  }
+  prosesBatch();
+}
+
+function tampilkanPreview() {
+  const preview = hasilData.map((row, i) =>
+    `${i+1}. Kalimat: ${row.kalimat}\n   Keyword: ${row.keyword}\n   Hashtag: ${row.hashtag}\n`
+  ).join('\n');
+  document.getElementById('hasil').value = preview;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function unduhExcel() {
+  if (hasilData.length === 0) { alert('Generate dulu ya sebelum download!'); return; }
+  const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
+  let table = '<table border="1"><tr><th>Kalimat</th><th>Keyword</th><th>Hashtag</th></tr>';
+  hasilData.forEach(row => {
+    table += `<tr><td>${escapeHtml(row.kalimat)}</td><td>${escapeHtml(row.keyword)}</td><td>${escapeHtml(row.hashtag)}</td></tr>`;
+  });
+  table += '</table>';
+  const blob = new Blob(['\ufeff', table], { type: 'application/vnd.ms-excel' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `promo_${produk}.xls`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function unduhTxt() {
+  const teks = document.getElementById('hasil').value;
+  if (!teks) { alert('Generate dulu ya sebelum download!'); return; }
+  const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
+  const blob = new Blob([teks], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `kalimat_promo_${produk}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
