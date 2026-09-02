@@ -39,7 +39,7 @@
     <li>Klik <b>🚀 Generate</b>, tunggu progress bar sampai 100%.</li>
     <li>Cek hasil di kotak <b>Preview Hasil</b>, lalu klik <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b> untuk menyimpan.</li>
   </ol>
-  <p><b>Catatan:</b> Proses generate kalimat berjalan offline di browser kamu. Hanya fitur "Cari Otomatis Kecamatan" yang membutuhkan internet karena mengambil data dari sumber wilayah resmi Indonesia.</p>
+  <p><b>Catatan:</b> Proses generate kalimat berjalan offline di browser kamu. Hanya fitur "Cari Otomatis Kecamatan" yang membutuhkan internet karena mengambil data dari sumber wilayah resmi Indonesia, dan diambil bertahap per 6 provinsi supaya tidak dibatasi server.</p>
 </details>
 
 <label>Nama Produk</label>
@@ -147,6 +147,28 @@ function hitungMaksKombinasi() {
   return total;
 }
 
+async function fetchJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} saat mengambil data dari server`);
+  return res.json();
+}
+
+async function fetchRegenciesBertahap(provinces, statusCari, batchSize = 6) {
+  let allLists = [];
+  for (let i = 0; i < provinces.length; i += batchSize) {
+    const batch = provinces.slice(i, i + batchSize);
+    statusCari.textContent = `Memeriksa provinsi ${i + 1}–${Math.min(i + batchSize, provinces.length)} dari ${provinces.length}...`;
+    const hasil = await Promise.all(
+      batch.map(p =>
+        fetchJson(`https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${p.id}.json`)
+          .catch(() => [])
+      )
+    );
+    allLists.push(...hasil);
+  }
+  return allLists;
+}
+
 async function cariKecamatan() {
   const kotaInput = document.getElementById('cariKota').value.trim();
   const statusCari = document.getElementById('statusCari');
@@ -154,15 +176,9 @@ async function cariKecamatan() {
 
   statusCari.textContent = 'Mencari data provinsi...';
   try {
-    const provinces = await fetch('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json').then(r => r.json());
+    const provinces = await fetchJson('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json');
 
-    statusCari.textContent = `Menelusuri ${provinces.length} provinsi untuk "${kotaInput}"...`;
-    const regencyLists = await Promise.all(
-      provinces.map(p =>
-        fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${p.id}.json`)
-          .then(r => r.json()).catch(() => [])
-      )
-    );
+    const regencyLists = await fetchRegenciesBertahap(provinces, statusCari);
 
     let found = null;
     for (const list of regencyLists) {
@@ -177,7 +193,7 @@ async function cariKecamatan() {
     }
 
     statusCari.textContent = `Ditemukan: ${found.name}. Mengambil daftar kecamatan...`;
-    const districts = await fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/districts/${found.id}.json`).then(r => r.json());
+    const districts = await fetchJson(`https://emsifa.github.io/api-wilayah-indonesia/api/districts/${found.id}.json`);
 
     const lokasiBaru = districts.map(d => `${d.name} ${found.name}`);
     const ta = document.getElementById('lokasi');
@@ -189,7 +205,7 @@ async function cariKecamatan() {
     hitungMaksKombinasi();
   } catch (err) {
     statusCari.textContent = '';
-    alert('Gagal mengambil data. Pastikan koneksi internet kamu aktif.');
+    alert('Gagal mengambil data. Detail teknis: ' + err.message + '\n\nCoba klik "Cari & Isi Otomatis" sekali lagi, kadang server butuh dicoba ulang.');
     console.error(err);
   }
 }
