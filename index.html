@@ -2,12 +2,12 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Generator Kalimat Promo + Lokasi + Excel Export</title>
+<title>Generator Kalimat Promo Susu Kambing</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 850px; margin: 20px auto; padding: 10px; }
-  textarea { width: 100%; height: 110px; font-family: monospace; margin-bottom: 5px; }
+  textarea { width: 100%; height: 100px; font-family: monospace; margin-bottom: 5px; box-sizing: border-box; }
   input, button { padding: 8px 14px; margin: 5px 5px 5px 0; cursor: pointer; }
-  #hasil { width: 100%; height: 320px; }
+  #hasil { width: 100%; height: 320px; box-sizing: border-box; }
   label { font-weight: bold; display: block; margin-top: 10px; }
   progress { width: 100%; height: 18px; margin: 8px 0; }
   .btn-ai { background: #6c5ce7; color: white; border: none; border-radius: 4px; }
@@ -16,67 +16,72 @@
   .btn-excel { background: #1d6f42; color: white; border: none; border-radius: 4px; }
   #statusText { font-size: 13px; color: #555; }
   .info-text { font-size: 12px; color: #888; font-weight: normal; }
+  details { background: #f4f6f8; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; }
+  summary { font-weight: bold; cursor: pointer; font-size: 16px; color: #2d3436; }
+  details ol { margin-top: 10px; line-height: 1.7; }
+  details code { background: #dfe6e9; padding: 2px 5px; border-radius: 3px; }
 </style>
 </head>
 <body>
 
-<h2>Generator Kalimat Promo + Lokasi + Export Excel</h2>
+<h2>Generator Kalimat Promo Susu Kambing</h2>
+
+<details open>
+  <summary>📘 Cara Penggunaan (klik untuk buka/tutup)</summary>
+  <ol>
+    <li>Isi kolom <b>Nama Produk</b> sesuai barang yang mau dipromosikan.</li>
+    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris untuk satu kalimat/pilihan. Boleh pakai tombol <b>✨ Rekomendasi</b> kalau butuh ide tambahan otomatis.</li>
+    <li>Isi <b>Bank Lokasi/Kota</b> dengan daftar kecamatan atau kota target, satu baris satu lokasi.</li>
+    <li>Isi <b>Nomor HP</b> yang mau dicantumkan di setiap kalimat.</li>
+    <li>Tentukan <b>Jumlah Kalimat</b> yang mau dibuat. Aplikasi akan otomatis membatasi jumlahnya kalau melebihi kombinasi maksimal yang tersedia (jumlah ini muncul di keterangan di bawah kolom).</li>
+    <li>Tentukan <b>Jumlah Variasi Lokasi per Baris</b> — ini menentukan berapa banyak kota yang muncul di kolom Keyword dan Hashtag pada tiap baris.</li>
+    <li>Klik tombol <b>🚀 Generate</b>, tunggu sampai progress bar penuh 100%.</li>
+    <li>Cek hasilnya di kotak <b>Preview Hasil</b>.</li>
+    <li>Klik <b>⬇ Download .txt</b> untuk simpan sebagai teks biasa, atau <b>📊 Download Excel</b> untuk simpan sebagai file Excel dengan 3 kolom (Kalimat, Keyword, Hashtag).</li>
+  </ol>
+  <p><b>Catatan:</b> Semua proses berjalan langsung di browser kamu (tidak butuh internet setelah halaman terbuka), jadi aman dan tidak ada data yang dikirim ke server manapun.</p>
+</details>
 
 <label>Nama Produk</label>
 <input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
 
-<label>Bank Kata Pembuka</label>
-<textarea id="pembuka">Ingin Lebih Sehat?
+<label>Bank Kata Pembuka <span class="info-text">(deskripsi/kualitas produk, satu baris satu pilihan)</span></label>
+<textarea id="pembuka">Segar, Murni &amp; Tanpa Bau Prengus
+Alami, Tanpa Campuran Bahan Kimia
+Terjamin Higienis &amp; Berkualitas
+Kaya Nutrisi &amp; Cocok Untuk Keluarga
+Diproses Langsung Dari Peternak
+Rasa Original, Tanpa Rasa Amis
+Terbukti Menyehatkan Sejak Dulu
+Dijamin Halal &amp; Bersertifikat
+Diminati Banyak Pelanggan Setia
+Cocok Untuk Sunnah Harian Anda
+Ingin Lebih Sehat? Coba Ini!
 Yuk, Ikuti Sunnah Rosul!
-Rasakan Khasiatnya!
 Sudah Coba Yang Murni?
 Jaga Imun Secara Alami!
-Waktunya Hidup Berkualitas!
-Bikin Tubuh Makin Bugar!
-Warisan Nabi yang Menyehatkan!
-Baru Kenal Manfaatnya?
-Saatnya Rasakan Kesegarannya!</textarea>
+Waktunya Hidup Berkualitas!</textarea>
 <button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi</button>
 
 <label>Bank Kata Promo</label>
-<textarea id="promo">Diskon 20%
+<textarea id="promo">Gratis Ongkir
+Diskon 20%
 Beli 2 Gratis 1
 Cashback 15%
-Harga Spesial Bulan Ini
 Bonus Botol Kedua
 Hemat Hingga 30 Ribu
 Paket Hemat Keluarga
 Voucher Belanja Rp10.000
 Potongan Harga Member Baru
-Bundling Hemat 2 Produk</textarea>
+Bundling Hemat 2 Produk
+Gratis Sample Produk
+Diskon Spesial Akhir Pekan
+Extra Diskon 10%
+Promo Buy 1 Get 1
+Harga Coret Spesial</textarea>
 <button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi</button>
 
-<label>Bank Kata Closing <span class="info-text">(jangan sertakan nama produk)</span></label>
-<textarea id="closing">Lagi Cari
-Paket
-Yang Jual
-Order
-Stok
-Cari Yang Asli
-Langganan
-Info
-Beli
-Cek</textarea>
-<button class="btn-ai" onclick="rekomendasi('closing')">✨ Rekomendasi</button>
-
-<label>Kata Kunci Pendukung</label>
-<textarea id="keywordMod">murni
-asli
-terbaik
-berkualitas
-alami
-sehat
-murah
-original
-terpercaya
-segar</textarea>
-
-<label>Bank Lokasi/Kota <span class="info-text">(otomatis digabung ke keyword & hashtag, tidak akan berulang dalam 1 kalimat)</span></label>
+<label>Bank Lokasi/Kota <span class="info-text">(tidak akan berulang dalam 1 baris, satu baris satu lokasi)</span></label>
 <textarea id="lokasi">Beji Kota Depok
 Bojongsari Kota Depok
 Cilodong Kota Depok
@@ -94,6 +99,10 @@ Tapos Kota Depok</textarea>
 
 <label>Jumlah Kalimat</label>
 <input type="number" id="jumlah" value="20">
+<div class="info-text" id="maksInfo">Maksimal kombinasi unik akan dihitung otomatis setelah kamu klik Generate.</div>
+
+<label>Jumlah Variasi Lokasi per Baris</label>
+<input type="number" id="jumlahLokasiPerBaris" value="5">
 
 <br>
 <button class="btn-generate" onclick="generate()">🚀 Generate</button>
@@ -110,16 +119,15 @@ Tapos Kota Depok</textarea>
 let hasilData = [];
 
 const kamusKreatif = {
-  pembuka: ["Kenapa Harus Ragu Lagi?","Ini Dia Solusi Sehatmu!","Yuk, Mulai Hidup Sehat!","Percaya Khasiat Alami?","Waktunya Beralih ke Alami!"],
-  promo: ["Gratis Sample Produk","Diskon Spesial Akhir Pekan","Extra Diskon 10%","Promo Buy 1 Get 1","Harga Coret Spesial"],
-  closing: ["Konsultasi","Tanya","Coba","Pesan","Dapatkan"]
+  pembuka: ["Tanpa Pengawet &amp; Bahan Tambahan","Diminum Rutin, Badan Makin Fit","Diproses Higienis Setiap Hari","Rasa Enak, Tanpa Bau Menyengat","Direkomendasikan Ahli Gizi","Kenapa Harus Ragu Lagi?","Percaya Khasiat Alami?","Waktunya Beralih ke Alami!"],
+  promo: ["Diskon Bulan Ini","Beli Banyak Lebih Hemat","Promo Terbatas Minggu Ini","Free Ongkir Sekota","Harga Spesial Pelanggan Baru"]
 };
 
 function rekomendasi(jenis) {
   const ta = document.getElementById(jenis);
   const existing = ta.value.trim().split('\n').filter(x=>x);
   const pool = kamusKreatif[jenis].filter(k=>!existing.includes(k));
-  if (pool.length===0){ alert('Kamus sudah habis!'); return; }
+  if (pool.length===0){ alert('Kamus rekomendasi sudah habis untuk kategori ini!'); return; }
   const tambahan = pool.sort(()=>Math.random()-0.5).slice(0,5);
   ta.value = existing.concat(tambahan).join('\n');
 }
@@ -131,20 +139,27 @@ function acakAmbil(arr, n) {
 function generate() {
   const pembuka = document.getElementById('pembuka').value.trim().split('\n').filter(x=>x);
   const promo = document.getElementById('promo').value.trim().split('\n').filter(x=>x);
-  const closing = document.getElementById('closing').value.trim().split('\n').filter(x=>x);
-  const keywordMod = document.getElementById('keywordMod').value.trim().split('\n').filter(x=>x);
   const lokasi = document.getElementById('lokasi').value.trim().split('\n').filter(x=>x);
   const nomor = document.getElementById('nomor').value;
   const produk = document.getElementById('namaProduk').value.trim();
   let jumlah = parseInt(document.getElementById('jumlah').value);
+  let jumlahLokasiPerBaris = parseInt(document.getElementById('jumlahLokasiPerBaris').value);
 
-  if (!produk || pembuka.length===0 || promo.length===0 || closing.length===0 || keywordMod.length<3 || lokasi.length<2) {
-    alert('Pastikan semua bank kata terisi (minimal 3 keyword, 2 lokasi)!');
+  if (!produk || pembuka.length===0 || promo.length===0 || lokasi.length<2) {
+    alert('Pastikan Nama Produk, Bank Pembuka, Bank Promo, dan minimal 2 Lokasi sudah terisi!');
     return;
   }
+  if (jumlahLokasiPerBaris > lokasi.length) jumlahLokasiPerBaris = lokasi.length;
+  if (jumlahLokasiPerBaris < 1) jumlahLokasiPerBaris = 1;
 
-  const total = pembuka.length * promo.length * closing.length;
-  if (jumlah > total) { jumlah = total; }
+  const total = pembuka.length * promo.length * lokasi.length;
+  document.getElementById('maksInfo').textContent = `Maksimal kombinasi unik saat ini: ${total} (Pembuka ${pembuka.length} x Promo ${promo.length} x Lokasi ${lokasi.length}).`;
+
+  if (jumlah > total) {
+    alert(`Bank kata saat ini cuma bisa hasilkan maksimal ${total} kombinasi unik. Jumlah otomatis disesuaikan jadi ${total}.`);
+    jumlah = total;
+    document.getElementById('jumlah').value = total;
+  }
 
   const progressBar = document.getElementById('progressBar');
   const statusText = document.getElementById('statusText');
@@ -165,29 +180,26 @@ function generate() {
     const batasAkhir = Math.min(idx + batchSize, dipilih.length);
     for (; idx < batasAkhir; idx++) {
       const id = dipilih[idx];
-      const k = id % closing.length;
-      let sisa = Math.floor(id / closing.length);
+      const k = id % lokasi.length;
+      let sisa = Math.floor(id / lokasi.length);
       const j = sisa % promo.length;
       const i = Math.floor(sisa / promo.length);
 
-      const kalimat = `${pembuka[i]} ${nomor} ${promo[j]} ${closing[k]} ${produk}`;
+      const lokasiUtama = lokasi[k];
+      const kalimat = `${pembuka[i]}, ${nomor} ${promo[j]} Promo ${produk} Di ${lokasiUtama}`;
 
-      const jumlahLokasi = Math.min(5, lokasi.length);
-      const lokasiTerpilih = acakAmbil(lokasi, jumlahLokasi);
+      const lokasiLain = lokasi.filter(l => l !== lokasiUtama);
+      const jumlahTambahan = Math.min(jumlahLokasiPerBaris - 1, lokasiLain.length);
+      const lokasiTambahan = acakAmbil(lokasiLain, jumlahTambahan);
+      const lokasiTerpilih = [lokasiUtama, ...lokasiTambahan];
 
-      const kw = lokasiTerpilih.map(lok => {
-        const mod = keywordMod[Math.floor(Math.random() * keywordMod.length)];
-        return `${produk} ${mod} di ${lok}`.toLowerCase();
-      });
-
-      const tagFromKw = kw.map(k => `#${k.replace(/\s+/g,'')}`);
-      const tagProduk = `#${produk.replace(/\s+/g,'')}`;
-      const hashtagFinal = [tagProduk, ...tagFromKw].join(' ');
+      const kw = lokasiTerpilih.map(lok => `Promo ${produk} Di ${lok}`);
+      const tagFromKw = kw.map(k => `#${k.replace(/\s+/g,'').toLowerCase()}`);
 
       hasilData.push({
         kalimat: kalimat,
-        hashtag: hashtagFinal,
-        keyword: kw.join(', ')
+        keyword: kw.join(', '),
+        hashtag: tagFromKw.join(' ')
       });
     }
     const persen = Math.round((idx / dipilih.length) * 100);
@@ -206,7 +218,7 @@ function generate() {
 
 function tampilkanPreview() {
   const preview = hasilData.map((row, i) =>
-    `${i+1}. Kalimat: ${row.kalimat}\n   Hashtag: ${row.hashtag}\n   Keyword: ${row.keyword}\n`
+    `${i+1}. Kalimat: ${row.kalimat}\n   Keyword: ${row.keyword}\n   Hashtag: ${row.hashtag}\n`
   ).join('\n');
   document.getElementById('hasil').value = preview;
 }
@@ -216,15 +228,13 @@ function escapeHtml(text) {
 }
 
 function unduhExcel() {
-  if (hasilData.length === 0) { alert('Generate dulu ya!'); return; }
+  if (hasilData.length === 0) { alert('Generate dulu ya sebelum download!'); return; }
   const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
-
-  let table = '<table border="1"><tr><th>Kalimat</th><th>Hashtag</th><th>Keyword</th></tr>';
+  let table = '<table border="1"><tr><th>Kalimat</th><th>Keyword</th><th>Hashtag</th></tr>';
   hasilData.forEach(row => {
-    table += `<tr><td>${escapeHtml(row.kalimat)}</td><td>${escapeHtml(row.hashtag)}</td><td>${escapeHtml(row.keyword)}</td></tr>`;
+    table += `<tr><td>${escapeHtml(row.kalimat)}</td><td>${escapeHtml(row.keyword)}</td><td>${escapeHtml(row.hashtag)}</td></tr>`;
   });
   table += '</table>';
-
   const blob = new Blob(['\ufeff', table], { type: 'application/vnd.ms-excel' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -236,7 +246,7 @@ function unduhExcel() {
 
 function unduhTxt() {
   const teks = document.getElementById('hasil').value;
-  if (!teks) { alert('Generate dulu ya!'); return; }
+  if (!teks) { alert('Generate dulu ya sebelum download!'); return; }
   const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
   const blob = new Blob([teks], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
