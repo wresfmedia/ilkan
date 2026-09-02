@@ -5,7 +5,7 @@
 <title>Generator Kalimat Promo Susu Kambing</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 10px; }
-  textarea { width: 100%; height: 120px; margin-bottom: 10px; }
+  textarea { width: 100%; height: 150px; margin-bottom: 10px; }
   input, button { padding: 8px; margin: 5px 0; }
   #hasil { width: 100%; height: 300px; }
   label { font-weight: bold; }
@@ -13,9 +13,9 @@
 </head>
 <body>
 
-<h2>Generator Kalimat Promo (Anti Perulangan)</h2>
+<h2>Generator Kalimat Promo (Anti Perulangan &amp; Anti Berdekatan)</h2>
 
-<label>Bank Kata Pembuka (satu per baris):</label>
+<label>Bank Kata Pembuka:</label>
 <textarea id="pembuka">Ingin Lebih Sehat?
 Yuk, Ikuti Sunnah Rosul!
 Rasakan Khasiatnya!
@@ -25,9 +25,19 @@ Waktunya Hidup Berkualitas!
 Bikin Tubuh Makin Bugar!
 Warisan Nabi yang Menyehatkan!
 Baru Kenal Manfaatnya?
-Saatnya Rasakan Kesegarannya!</textarea>
+Saatnya Rasakan Kesegarannya!
+Kenapa Harus Ragu Lagi?
+Ini Dia Solusi Sehatmu!
+Yuk, Mulai Hidup Sehat!
+Percaya Khasiat Alami?
+Waktunya Beralih ke Alami!
+Sudah Siap Lebih Bugar?
+Ini Rahasia Sehat Keluarga!
+Yuk, Coba Sekarang Juga!
+Sehatmu Prioritas Kami!
+Jangan Tunda Hidup Sehat!</textarea>
 
-<label>Bank Kata Promo (satu per baris):</label>
+<label>Bank Kata Promo:</label>
 <textarea id="promo">Diskon 20%
 Beli 2 Gratis 1
 Cashback 15%
@@ -37,9 +47,19 @@ Hemat Hingga 30 Ribu
 Paket Hemat Keluarga
 Voucher Belanja Rp10.000
 Potongan Harga Member Baru
-Bundling Hemat 2 Produk</textarea>
+Bundling Hemat 2 Produk
+Gratis Sample Produk
+Diskon Spesial Akhir Pekan
+Extra Diskon 10%
+Promo Buy 1 Get 1
+Harga Coret Spesial
+Gratis Merchandise Menarik
+Diskon Member Eksklusif
+Paket Combo Hemat
+Cashback Hingga 25rb
+Diskon Awal Bulan</textarea>
 
-<label>Bank Kata Closing (satu per baris):</label>
+<label>Bank Kata Closing:</label>
 <textarea id="closing">Lagi Cari Susu Kambing
 Paket Susu Kambing
 Yang Jual Susu Kambing
@@ -49,12 +69,22 @@ Cari Susu Kambing Asli
 Langganan Susu Kambing
 Info Susu Kambing
 Beli Susu Kambing
-Cek Susu Kambing</textarea>
+Cek Susu Kambing
+Konsultasi Susu Kambing
+Tanya Susu Kambing
+Coba Susu Kambing
+Pesan Susu Kambing
+Dapatkan Susu Kambing
+Rekomendasi Susu Kambing
+Testimoni Susu Kambing
+Referensi Susu Kambing
+Jaminan Susu Kambing
+Kualitas Susu Kambing</textarea>
 
 <label>Nomor HP:</label><br>
 <input type="text" id="nomor" value="08141-3333-512"><br>
 
-<label>Jumlah Kalimat Diinginkan:</label><br>
+<label>Jumlah Kalimat:</label><br>
 <input type="number" id="jumlah" value="100"><br>
 
 <button onclick="generate()">Generate Kalimat</button>
@@ -72,49 +102,13 @@ function generate() {
   let jumlah = parseInt(document.getElementById('jumlah').value);
 
   const total = pembuka.length * promo.length * closing.length;
-
   if (jumlah > total) {
-    alert('Total kombinasi unik cuma ' + total + '. Tambah isi bank kata biar bisa lebih banyak. Sementara ditampilkan semua yang tersedia (' + total + ' kalimat).');
+    alert('Total kombinasi unik cuma ' + total + '. Ditampilkan semua (' + total + ' kalimat).');
     jumlah = total;
   }
 
-  // Buat array berisi semua kemungkinan index (0 sampai total-1)
+  // Fisher-Yates Shuffle: mengacak urutan angka 0..total-1 secara adil
   let indexArray = Array.from({length: total}, (_, i) => i);
-
-  // Fisher-Yates Shuffle: teknik mengacak array secara merata (fair)
   for (let i = indexArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [indexArray[i], indexArray[j]] = [indexArray[j], indexArray[i]];
-  }
-
-  // Ambil sejumlah 'jumlah' index pertama dari hasil acakan (dijamin tidak ada duplikat)
-  const dipilih = indexArray.slice(0, jumlah);
-
-  const hasilKalimat = dipilih.map(idx => {
-    // Decode index tunggal jadi 3 index (i, j, k) menggunakan pembagian & modulo
-    const k = idx % closing.length;
-    let sisa = Math.floor(idx / closing.length);
-    const j = sisa % promo.length;
-    const i = Math.floor(sisa / promo.length);
-
-    return `${pembuka[i]} ${nomor} ${promo[j]} ${closing[k]} Susu Kambing`;
-  });
-
-  document.getElementById('hasil').value = hasilKalimat.join('\n');
-}
-
-function unduh() {
-  const teks = document.getElementById('hasil').value;
-  if (!teks) { alert('Generate kalimat dulu ya!'); return; }
-  const blob = new Blob([teks], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'kalimat_promo.txt';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-</script>
-
-</body>
-</html>
+    [indexArray[i], indexArray
