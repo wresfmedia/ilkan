@@ -1,15 +1,3 @@
-Error "Failed to fetch" itu beda jenis dengan error HTTP biasa (kayak 404 atau 500) — ini artinya **request-nya bahkan belum sempat "nyampe" ke server sama sekali**. Browser kamu mencoba menghubungi alamat itu, tapi koneksinya ditolak/terputus duluan sebelum sempat dapat balasan apapun. Ini kejadian di request paling awal (`provinces.json`), jadi bukan soal batch 6-provinsi lagi — errornya lebih ke akar sumber datanya.
-
-**Kemungkinan penyebab paling umum untuk kasus ini:**
-1. **Server `emsifa.github.io` sedang bermasalah/lambat merespons** dari sisi mereka — ini domain GitHub Pages milik orang lain, bukan infrastruktur besar seperti CDN, jadi kestabilannya nggak terjamin 24/7.
-2. **Ada ekstensi browser** (ad-blocker, privacy blocker, dsb) yang diam-diam memblokir domain `emsifa.github.io` karena dianggap "pihak ketiga" yang mencurigakan.
-3. **Kebijakan CORS** dari server tersebut kadang tidak konsisten dikirim, membuat browser menolak duluan sebelum data sempat diproses.
-
-Karena semua ini di luar kendali kode kita (bergantung ke server pihak ketiga yang nggak stabil), solusi paling ampuh adalah **pindah sumber data ke jsDelivr CDN** — ini jaringan pengiriman konten global yang jauh lebih stabil, konsisten mengirim izin CORS dengan benar, dan tetap mengambil data yang sama persis (karena jsDelivr ini sebenarnya "mencerminkan" isi repository yang sama, cuma disajikan lewat server yang lebih andal). Aku juga tambahkan mekanisme **fallback otomatis**: kalau jsDelivr gagal, otomatis dicoba lagi lewat sumber cadangan, sehingga peluang gagal total makin kecil.
-
-Ini kode lengkapnya, siap copy-paste seluruhnya:
-
-```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -278,4 +266,4 @@ function generate() {
   const total = hitungMaksKombinasi();
 
   if (jumlah > total) {
-    alert(`Bank kata saat ini cuma bisa hasilkan maksimal ${total} kombinas
+    alert(`Bank kata saat ini cuma bisa hasilkan maksimal \${total} kombinas
