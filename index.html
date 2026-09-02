@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Generator Kalimat Promo + SEO</title>
+<title>Generator Kalimat Promo + Excel Export</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 850px; margin: 20px auto; padding: 10px; }
   textarea { width: 100%; height: 110px; font-family: monospace; margin-bottom: 5px; }
@@ -13,13 +13,14 @@
   .btn-ai { background: #6c5ce7; color: white; border: none; border-radius: 4px; }
   .btn-generate { background: #00b894; color: white; border: none; border-radius: 4px; }
   .btn-download { background: #0984e3; color: white; border: none; border-radius: 4px; }
+  .btn-excel { background: #1d6f42; color: white; border: none; border-radius: 4px; }
   #statusText { font-size: 13px; color: #555; }
   .info-text { font-size: 12px; color: #888; font-weight: normal; }
 </style>
 </head>
 <body>
 
-<h2>Generator Kalimat Promo + Keyword &amp; Hashtag</h2>
+<h2>Generator Kalimat Promo + Export Excel (3 Kolom)</h2>
 
 <label>Nama Produk</label>
 <input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
@@ -63,7 +64,7 @@ Beli
 Cek</textarea>
 <button class="btn-ai" onclick="rekomendasi('closing')">✨ Rekomendasi</button>
 
-<label>Kata Kunci Pendukung <span class="info-text">(akan digabung otomatis dgn nama produk)</span></label>
+<label>Kata Kunci Pendukung</label>
 <textarea id="keywordMod">murni
 asli
 terbaik
@@ -73,14 +74,9 @@ sehat
 murah
 original
 terpercaya
-segar
-halal
-herbal
-kemasan
-dewasa
-bubuk</textarea>
+segar</textarea>
 
-<label>Hashtag Pendukung <span class="info-text">(tanpa tanda #, otomatis ditambahkan)</span></label>
+<label>Hashtag Pendukung <span class="info-text">(tanpa tanda #)</span></label>
 <textarea id="hashtagMod">PromoHariIni
 HidupSehat
 DiskonSpesial
@@ -100,15 +96,18 @@ RekomendasiSehat</textarea>
 
 <br>
 <button class="btn-generate" onclick="generate()">🚀 Generate</button>
-<button class="btn-download" onclick="unduh()">⬇ Download .txt</button>
+<button class="btn-download" onclick="unduhTxt()">⬇ Download .txt</button>
+<button class="btn-excel" onclick="unduhExcel()">📊 Download Excel (3 Kolom)</button>
 
 <progress id="progressBar" value="0" max="100" style="display:none;"></progress>
 <div id="statusText"></div>
 
-<h3>Hasil:</h3>
+<h3>Preview Hasil:</h3>
 <textarea id="hasil" readonly></textarea>
 
 <script>
+let hasilData = []; // Menyimpan data terstruktur: {kalimat, hashtag, keyword}
+
 const kamusKreatif = {
   pembuka: ["Kenapa Harus Ragu Lagi?","Ini Dia Solusi Sehatmu!","Yuk, Mulai Hidup Sehat!","Percaya Khasiat Alami?","Waktunya Beralih ke Alami!"],
   promo: ["Gratis Sample Produk","Diskon Spesial Akhir Pekan","Extra Diskon 10%","Promo Buy 1 Get 1","Harga Coret Spesial"],
@@ -157,7 +156,7 @@ function generate() {
     [indexArray[i], indexArray[j]] = [indexArray[j], indexArray[i]];
   }
   const dipilih = indexArray.slice(0, jumlah);
-  const hasilKalimat = [];
+  hasilData = []; // reset data setiap generate baru
   let idx = 0;
   const batchSize = 30;
 
@@ -171,12 +170,15 @@ function generate() {
       const i = Math.floor(sisa / promo.length);
 
       const kalimat = `${pembuka[i]} ${nomor} ${promo[j]} ${closing[k]} ${produk}`;
-
       const kw = acakAmbil(keywordMod, 5).map(m => `${produk} ${m}`.toLowerCase());
       const tag = acakAmbil(hashtagMod, 5).map(m => `#${m.replace(/\s+/g,'')}`);
       const tagProduk = `#${produk.replace(/\s+/g,'')}`;
 
-      hasilKalimat.push(`${kalimat}\nKeyword: ${kw.join(', ')}\nHashtag: ${tagProduk} ${tag.join(' ')}\n`);
+      hasilData.push({
+        kalimat: kalimat,
+        hashtag: `${tagProduk} ${tag.join(' ')}`,
+        keyword: kw.join(', ')
+      });
     }
     const persen = Math.round((idx / dipilih.length) * 100);
     progressBar.value = persen;
@@ -184,15 +186,45 @@ function generate() {
     if (idx < dipilih.length) {
       setTimeout(prosesBatch, 10);
     } else {
-      document.getElementById('hasil').value = hasilKalimat.join('\n');
-      statusText.textContent = `Selesai! ${dipilih.length} kalimat + keyword/hashtag berhasil dibuat.`;
+      tampilkanPreview();
+      statusText.textContent = `Selesai! ${dipilih.length} baris data siap diexport.`;
       setTimeout(()=>{ progressBar.style.display='none'; }, 1500);
     }
   }
   prosesBatch();
 }
 
-function unduh() {
+function tampilkanPreview() {
+  const preview = hasilData.map((row, i) =>
+    `${i+1}. Kalimat: ${row.kalimat}\n   Hashtag: ${row.hashtag}\n   Keyword: ${row.keyword}\n`
+  ).join('\n');
+  document.getElementById('hasil').value = preview;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function unduhExcel() {
+  if (hasilData.length === 0) { alert('Generate dulu ya!'); return; }
+  const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
+
+  let table = '<table border="1"><tr><th>Kalimat</th><th>Hashtag</th><th>Keyword</th></tr>';
+  hasilData.forEach(row => {
+    table += `<tr><td>${escapeHtml(row.kalimat)}</td><td>${escapeHtml(row.hashtag)}</td><td>${escapeHtml(row.keyword)}</td></tr>`;
+  });
+  table += '</table>';
+
+  const blob = new Blob(['\ufeff', table], { type: 'application/vnd.ms-excel' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `promo_${produk}.xls`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function unduhTxt() {
   const teks = document.getElementById('hasil').value;
   if (!teks) { alert('Generate dulu ya!'); return; }
   const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
