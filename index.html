@@ -1,3 +1,15 @@
+Error "Failed to fetch" itu beda jenis dengan error HTTP biasa (kayak 404 atau 500) — ini artinya **request-nya bahkan belum sempat "nyampe" ke server sama sekali**. Browser kamu mencoba menghubungi alamat itu, tapi koneksinya ditolak/terputus duluan sebelum sempat dapat balasan apapun. Ini kejadian di request paling awal (`provinces.json`), jadi bukan soal batch 6-provinsi lagi — errornya lebih ke akar sumber datanya.
+
+**Kemungkinan penyebab paling umum untuk kasus ini:**
+1. **Server `emsifa.github.io` sedang bermasalah/lambat merespons** dari sisi mereka — ini domain GitHub Pages milik orang lain, bukan infrastruktur besar seperti CDN, jadi kestabilannya nggak terjamin 24/7.
+2. **Ada ekstensi browser** (ad-blocker, privacy blocker, dsb) yang diam-diam memblokir domain `emsifa.github.io` karena dianggap "pihak ketiga" yang mencurigakan.
+3. **Kebijakan CORS** dari server tersebut kadang tidak konsisten dikirim, membuat browser menolak duluan sebelum data sempat diproses.
+
+Karena semua ini di luar kendali kode kita (bergantung ke server pihak ketiga yang nggak stabil), solusi paling ampuh adalah **pindah sumber data ke jsDelivr CDN** — ini jaringan pengiriman konten global yang jauh lebih stabil, konsisten mengirim izin CORS dengan benar, dan tetap mengambil data yang sama persis (karena jsDelivr ini sebenarnya "mencerminkan" isi repository yang sama, cuma disajikan lewat server yang lebih andal). Aku juga tambahkan mekanisme **fallback otomatis**: kalau jsDelivr gagal, otomatis dicoba lagi lewat sumber cadangan, sehingga peluang gagal total makin kecil.
+
+Ini kode lengkapnya, siap copy-paste seluruhnya:
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -39,7 +51,7 @@
     <li>Klik <b>🚀 Generate</b>, tunggu progress bar sampai 100%.</li>
     <li>Cek hasil di kotak <b>Preview Hasil</b>, lalu klik <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b> untuk menyimpan.</li>
   </ol>
-  <p><b>Catatan:</b> Proses generate kalimat berjalan offline di browser kamu. Hanya fitur "Cari Otomatis Kecamatan" yang membutuhkan internet karena mengambil data dari sumber wilayah resmi Indonesia, dan diambil bertahap per 6 provinsi supaya tidak dibatasi server.</p>
+  <p><b>Catatan:</b> Proses generate kalimat berjalan offline di browser kamu. Hanya fitur "Cari Otomatis Kecamatan" yang membutuhkan internet karena mengambil data dari sumber wilayah resmi Indonesia (via CDN jsDelivr agar lebih stabil), diambil bertahap per 6 provinsi supaya tidak dibatasi server.</p>
 </details>
 
 <label>Nama Produk</label>
@@ -147,10 +159,46 @@ function hitungMaksKombinasi() {
   return total;
 }
 
-async function fetchJson(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status} saat mengambil data dari server`);
-  return res.json();
+// --- Sumber data wilayah, dengan fallback berlapis ---
+const SUMBER_DATA = [
+  {
+    nama: "jsDelivr CDN",
+    provinces: "https://cdn.jsdelivr.net/gh/emsifa/api-wilayah-indonesia@master/api/provinces.json",
+    regencies: (id) => `https://cdn.jsdelivr.net/gh/emsifa/api-wilayah-indonesia@master/api/regencies/${id}.json`,
+    districts: (id) => `https://cdn.jsdelivr.net/gh/emsifa/api-wilayah-indonesia@master/api/districts/${id}.json`
+  },
+  {
+    nama: "emsifa GitHub Pages",
+    provinces: "https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json",
+    regencies: (id) => `https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${id}.json`,
+    districts: (id) => `https://emsifa.github.io/api-wilayah-indonesia/api/districts/${id}.json`
+  }
+];
+
+async fetchJsonFallback(urlGetter, ...args) {
+  let lastError;
+  for (const sumber of SUMBER_DATA) {
+    try {
+      const url = typeof urlGetter(sumber) === 'function' ? urlGetter(sumber)(...args) : urlGetter(sumber);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status} dari ${sumber.nama}`);
+      return await res.json();
+    } catch (err) {
+      lastError = err;
+      console.warn(`Gagal ambil data dari ${sumber.nama}:`, err.message);
+    }
+  }
+  throw lastError;
+}
+
+async function ambilProvinces() {
+  return fetchJsonFallback(sumber => sumber.provinces);
+}
+async function ambilRegencies(id) {
+  return fetchJsonFallback(sumber => sumber.regencies, id);
+}
+async function ambilDistricts(id) {
+  return fetchJsonFallback(sumber => sumber.districts, id);
 }
 
 async function fetchRegenciesBertahap(provinces, statusCari, batchSize = 6) {
@@ -159,10 +207,7 @@ async function fetchRegenciesBertahap(provinces, statusCari, batchSize = 6) {
     const batch = provinces.slice(i, i + batchSize);
     statusCari.textContent = `Memeriksa provinsi ${i + 1}–${Math.min(i + batchSize, provinces.length)} dari ${provinces.length}...`;
     const hasil = await Promise.all(
-      batch.map(p =>
-        fetchJson(`https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${p.id}.json`)
-          .catch(() => [])
-      )
+      batch.map(p => ambilRegencies(p.id).catch(() => []))
     );
     allLists.push(...hasil);
   }
@@ -176,7 +221,7 @@ async function cariKecamatan() {
 
   statusCari.textContent = 'Mencari data provinsi...';
   try {
-    const provinces = await fetchJson('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json');
+    const provinces = await ambilProvinces();
 
     const regencyLists = await fetchRegenciesBertahap(provinces, statusCari);
 
@@ -193,7 +238,7 @@ async function cariKecamatan() {
     }
 
     statusCari.textContent = `Ditemukan: ${found.name}. Mengambil daftar kecamatan...`;
-    const districts = await fetchJson(`https://emsifa.github.io/api-wilayah-indonesia/api/districts/${found.id}.json`);
+    const districts = await ambilDistricts(found.id);
 
     const lokasiBaru = districts.map(d => `${d.name} ${found.name}`);
     const ta = document.getElementById('lokasi');
@@ -205,7 +250,7 @@ async function cariKecamatan() {
     hitungMaksKombinasi();
   } catch (err) {
     statusCari.textContent = '';
-    alert('Gagal mengambil data. Detail teknis: ' + err.message + '\n\nCoba klik "Cari & Isi Otomatis" sekali lagi, kadang server butuh dicoba ulang.');
+    alert('Gagal mengambil data dari semua sumber yang dicoba. Detail teknis: ' + err.message + '\n\nKemungkinan koneksi ke server data wilayah sedang terblokir (misal oleh ekstensi ad-blocker) atau server sedang down. Coba nonaktifkan sementara ekstensi ad-blocker/VPN, lalu coba lagi.');
     console.error(err);
   }
 }
@@ -233,106 +278,4 @@ function generate() {
   const total = hitungMaksKombinasi();
 
   if (jumlah > total) {
-    alert(`Bank kata saat ini cuma bisa hasilkan maksimal ${total} kombinasi unik. Jumlah otomatis disesuaikan jadi ${total}.`);
-    jumlah = total;
-    document.getElementById('jumlah').value = total;
-  }
-
-  const progressBar = document.getElementById('progressBar');
-  const statusText = document.getElementById('statusText');
-  progressBar.style.display = 'block';
-  progressBar.value = 0;
-
-  let indexArray = Array.from({length: total}, (_, i) => i);
-  for (let i = indexArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [indexArray[i], indexArray[j]] = [indexArray[j], indexArray[i]];
-  }
-  const dipilih = indexArray.slice(0, jumlah);
-  hasilData = [];
-  let idx = 0;
-  const batchSize = 30;
-
-  function prosesBatch() {
-    const batasAkhir = Math.min(idx + batchSize, dipilih.length);
-    for (; idx < batasAkhir; idx++) {
-      const id = dipilih[idx];
-      const k = id % lokasi.length;
-      let sisa = Math.floor(id / lokasi.length);
-      const j = sisa % promo.length;
-      const i = Math.floor(sisa / promo.length);
-
-      const lokasiUtama = lokasi[k];
-      const kalimat = `${pembuka[i]}, ${nomor} ${promo[j]} Promo ${produk} Di ${lokasiUtama}`;
-
-      const lokasiLain = lokasi.filter(l => l !== lokasiUtama);
-      const jumlahTambahan = Math.min(jumlahLokasiPerBaris - 1, lokasiLain.length);
-      const lokasiTambahan = acakAmbil(lokasiLain, jumlahTambahan);
-      const lokasiTerpilih = [lokasiUtama, ...lokasiTambahan];
-
-      const kw = lokasiTerpilih.map(lok => `Promo ${produk} Di ${lok}`);
-      const tagFromKw = kw.map(k => `#${k.replace(/\s+/g,'').toLowerCase()}`);
-
-      hasilData.push({
-        kalimat: kalimat,
-        keyword: kw.join(', '),
-        hashtag: tagFromKw.join(' ')
-      });
-    }
-    const persen = Math.round((idx / dipilih.length) * 100);
-    progressBar.value = persen;
-    statusText.textContent = `Memproses... ${idx}/${dipilih.length} (${persen}%)`;
-    if (idx < dipilih.length) {
-      setTimeout(prosesBatch, 10);
-    } else {
-      tampilkanPreview();
-      statusText.textContent = `Selesai! ${dipilih.length} baris data siap diexport.`;
-      setTimeout(()=>{ progressBar.style.display='none'; }, 1500);
-    }
-  }
-  prosesBatch();
-}
-
-function tampilkanPreview() {
-  const preview = hasilData.map((row, i) =>
-    `${i+1}. Kalimat: ${row.kalimat}\n   Keyword: ${row.keyword}\n   Hashtag: ${row.hashtag}\n`
-  ).join('\n');
-  document.getElementById('hasil').value = preview;
-}
-
-function escapeHtml(text) {
-  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function unduhExcel() {
-  if (hasilData.length === 0) { alert('Generate dulu ya sebelum download!'); return; }
-  const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
-  let table = '<table border="1"><tr><th>Kalimat</th><th>Keyword</th><th>Hashtag</th></tr>';
-  hasilData.forEach(row => {
-    table += `<tr><td>${escapeHtml(row.kalimat)}</td><td>${escapeHtml(row.keyword)}</td><td>${escapeHtml(row.hashtag)}</td></tr>`;
-  });
-  table += '</table>';
-  const blob = new Blob(['\ufeff', table], { type: 'application/vnd.ms-excel' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `promo_${produk}.xls`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function unduhTxt() {
-  const teks = document.getElementById('hasil').value;
-  if (!teks) { alert('Generate dulu ya sebelum download!'); return; }
-  const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
-  const blob = new Blob([teks], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `kalimat_promo_${produk}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-</script>
-</body>
-</html>
+    alert(`Bank kata saat ini cuma bisa hasilkan maksimal ${total} kombinas
