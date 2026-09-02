@@ -14,7 +14,8 @@
   .btn-generate { background: #00b894; color: white; border: none; border-radius: 4px; }
   .btn-download { background: #0984e3; color: white; border: none; border-radius: 4px; }
   .btn-excel { background: #1d6f42; color: white; border: none; border-radius: 4px; }
-  #statusText { font-size: 13px; color: #555; }
+  .btn-cari { background: #e17055; color: white; border: none; border-radius: 4px; }
+  #statusText, #statusCari, #maksInfo { font-size: 13px; color: #555; }
   .info-text { font-size: 12px; color: #888; font-weight: normal; }
   details { background: #f4f6f8; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; }
   summary { font-weight: bold; cursor: pointer; font-size: 16px; color: #2d3436; }
@@ -30,30 +31,29 @@
   <summary>📘 Cara Penggunaan (klik untuk buka/tutup)</summary>
   <ol>
     <li>Isi kolom <b>Nama Produk</b> sesuai barang yang mau dipromosikan.</li>
-    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris untuk satu kalimat/pilihan. Boleh pakai tombol <b>✨ Rekomendasi</b> kalau butuh ide tambahan otomatis.</li>
-    <li>Isi <b>Bank Lokasi/Kota</b> dengan daftar kecamatan atau kota target, satu baris satu lokasi.</li>
+    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris untuk satu pilihan. Boleh pakai tombol <b>✨ Rekomendasi</b> kalau butuh ide tambahan otomatis.</li>
+    <li>Untuk lokasi, kamu bisa ketik nama kota/kabupaten di kolom <b>Cari Otomatis Kecamatan</b> (contoh: "Depok") lalu klik <b>🔍 Cari & Isi Otomatis</b> — kecamatan-kecamatannya akan otomatis masuk ke Bank Lokasi dan angka <b>Maksimal Kombinasi</b> langsung update. Fitur ini butuh koneksi internet. Kamu juga tetap bisa mengetik/mengedit manual di Bank Lokasi.</li>
     <li>Isi <b>Nomor HP</b> yang mau dicantumkan di setiap kalimat.</li>
-    <li>Tentukan <b>Jumlah Kalimat</b> yang mau dibuat. Aplikasi akan otomatis membatasi jumlahnya kalau melebihi kombinasi maksimal yang tersedia (jumlah ini muncul di keterangan di bawah kolom).</li>
-    <li>Tentukan <b>Jumlah Variasi Lokasi per Baris</b> — ini menentukan berapa banyak kota yang muncul di kolom Keyword dan Hashtag pada tiap baris.</li>
-    <li>Klik tombol <b>🚀 Generate</b>, tunggu sampai progress bar penuh 100%.</li>
-    <li>Cek hasilnya di kotak <b>Preview Hasil</b>.</li>
-    <li>Klik <b>⬇ Download .txt</b> untuk simpan sebagai teks biasa, atau <b>📊 Download Excel</b> untuk simpan sebagai file Excel dengan 3 kolom (Kalimat, Keyword, Hashtag).</li>
+    <li>Tentukan <b>Jumlah Kalimat</b> yang mau dibuat. Aplikasi otomatis membatasi jumlahnya kalau melebihi kombinasi maksimal yang tersedia.</li>
+    <li>Tentukan <b>Jumlah Variasi Lokasi per Baris</b> — menentukan berapa kota muncul di kolom Keyword dan Hashtag tiap baris (tidak memengaruhi jumlah kombinasi maksimal, hanya memengaruhi isi tiap baris).</li>
+    <li>Klik <b>🚀 Generate</b>, tunggu progress bar sampai 100%.</li>
+    <li>Cek hasil di kotak <b>Preview Hasil</b>, lalu klik <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b> untuk menyimpan.</li>
   </ol>
-  <p><b>Catatan:</b> Semua proses berjalan langsung di browser kamu (tidak butuh internet setelah halaman terbuka), jadi aman dan tidak ada data yang dikirim ke server manapun.</p>
+  <p><b>Catatan:</b> Proses generate kalimat berjalan offline di browser kamu. Hanya fitur "Cari Otomatis Kecamatan" yang membutuhkan internet karena mengambil data dari sumber wilayah resmi Indonesia.</p>
 </details>
 
 <label>Nama Produk</label>
 <input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
 
 <label>Bank Kata Pembuka <span class="info-text">(deskripsi/kualitas produk, satu baris satu pilihan)</span></label>
-<textarea id="pembuka">Segar, Murni &amp; Tanpa Bau Prengus
+<textarea id="pembuka">Segar, Murni & Tanpa Bau Prengus
 Alami, Tanpa Campuran Bahan Kimia
-Terjamin Higienis &amp; Berkualitas
-Kaya Nutrisi &amp; Cocok Untuk Keluarga
+Terjamin Higienis & Berkualitas
+Kaya Nutrisi & Cocok Untuk Keluarga
 Diproses Langsung Dari Peternak
 Rasa Original, Tanpa Rasa Amis
 Terbukti Menyehatkan Sejak Dulu
-Dijamin Halal &amp; Bersertifikat
+Dijamin Halal & Bersertifikat
 Diminati Banyak Pelanggan Setia
 Cocok Untuk Sunnah Harian Anda
 Ingin Lebih Sehat? Coba Ini!
@@ -81,6 +81,11 @@ Promo Buy 1 Get 1
 Harga Coret Spesial</textarea>
 <button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi</button>
 
+<label>Cari Otomatis Kecamatan Berdasarkan Nama Kota</label>
+<input type="text" id="cariKota" placeholder="Contoh: Depok, Bandung, Surabaya" style="width:60%; box-sizing:border-box;">
+<button class="btn-cari" onclick="cariKecamatan()">🔍 Cari & Isi Otomatis</button>
+<div id="statusCari"></div>
+
 <label>Bank Lokasi/Kota <span class="info-text">(tidak akan berulang dalam 1 baris, satu baris satu lokasi)</span></label>
 <textarea id="lokasi">Beji Kota Depok
 Bojongsari Kota Depok
@@ -99,7 +104,7 @@ Tapos Kota Depok</textarea>
 
 <label>Jumlah Kalimat</label>
 <input type="number" id="jumlah" value="20">
-<div class="info-text" id="maksInfo">Maksimal kombinasi unik akan dihitung otomatis setelah kamu klik Generate.</div>
+<div id="maksInfo">Maksimal kombinasi unik: 2475 (Pembuka 15 x Promo 15 x Lokasi 11).</div>
 
 <label>Jumlah Variasi Lokasi per Baris</label>
 <input type="number" id="jumlahLokasiPerBaris" value="5">
@@ -119,7 +124,7 @@ Tapos Kota Depok</textarea>
 let hasilData = [];
 
 const kamusKreatif = {
-  pembuka: ["Tanpa Pengawet &amp; Bahan Tambahan","Diminum Rutin, Badan Makin Fit","Diproses Higienis Setiap Hari","Rasa Enak, Tanpa Bau Menyengat","Direkomendasikan Ahli Gizi","Kenapa Harus Ragu Lagi?","Percaya Khasiat Alami?","Waktunya Beralih ke Alami!"],
+  pembuka: ["Tanpa Pengawet & Bahan Tambahan","Diminum Rutin, Badan Makin Fit","Diproses Higienis Setiap Hari","Rasa Enak, Tanpa Bau Menyengat","Direkomendasikan Ahli Gizi","Kenapa Harus Ragu Lagi?","Percaya Khasiat Alami?","Waktunya Beralih ke Alami!"],
   promo: ["Diskon Bulan Ini","Beli Banyak Lebih Hemat","Promo Terbatas Minggu Ini","Free Ongkir Sekota","Harga Spesial Pelanggan Baru"]
 };
 
@@ -130,6 +135,63 @@ function rekomendasi(jenis) {
   if (pool.length===0){ alert('Kamus rekomendasi sudah habis untuk kategori ini!'); return; }
   const tambahan = pool.sort(()=>Math.random()-0.5).slice(0,5);
   ta.value = existing.concat(tambahan).join('\n');
+}
+
+function hitungMaksKombinasi() {
+  const pembuka = document.getElementById('pembuka').value.trim().split('\n').filter(x=>x);
+  const promo = document.getElementById('promo').value.trim().split('\n').filter(x=>x);
+  const lokasi = document.getElementById('lokasi').value.trim().split('\n').filter(x=>x);
+  const total = pembuka.length * promo.length * lokasi.length;
+  document.getElementById('maksInfo').textContent =
+    `Maksimal kombinasi unik: ${total} (Pembuka ${pembuka.length} x Promo ${promo.length} x Lokasi ${lokasi.length}).`;
+  return total;
+}
+
+async function cariKecamatan() {
+  const kotaInput = document.getElementById('cariKota').value.trim();
+  const statusCari = document.getElementById('statusCari');
+  if (!kotaInput) { alert('Ketik nama kota/kabupaten dulu, contoh: Depok'); return; }
+
+  statusCari.textContent = 'Mencari data provinsi...';
+  try {
+    const provinces = await fetch('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json').then(r => r.json());
+
+    statusCari.textContent = `Menelusuri ${provinces.length} provinsi untuk "${kotaInput}"...`;
+    const regencyLists = await Promise.all(
+      provinces.map(p =>
+        fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${p.id}.json`)
+          .then(r => r.json()).catch(() => [])
+      )
+    );
+
+    let found = null;
+    for (const list of regencyLists) {
+      const match = list.find(r => r.name.toLowerCase().includes(kotaInput.toLowerCase()));
+      if (match) { found = match; break; }
+    }
+
+    if (!found) {
+      statusCari.textContent = '';
+      alert(`"${kotaInput}" tidak ditemukan. Coba cek penulisannya, misal "Depok" bukan "Depoq".`);
+      return;
+    }
+
+    statusCari.textContent = `Ditemukan: ${found.name}. Mengambil daftar kecamatan...`;
+    const districts = await fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/districts/${found.id}.json`).then(r => r.json());
+
+    const lokasiBaru = districts.map(d => `${d.name} ${found.name}`);
+    const ta = document.getElementById('lokasi');
+    const existing = ta.value.trim().split('\n').filter(x => x);
+    const gabungan = [...new Set([...existing, ...lokasiBaru])];
+    ta.value = gabungan.join('\n');
+
+    statusCari.textContent = `Berhasil! ${districts.length} kecamatan dari "${found.name}" ditambahkan ke Bank Lokasi.`;
+    hitungMaksKombinasi();
+  } catch (err) {
+    statusCari.textContent = '';
+    alert('Gagal mengambil data. Pastikan koneksi internet kamu aktif.');
+    console.error(err);
+  }
 }
 
 function acakAmbil(arr, n) {
@@ -152,8 +214,7 @@ function generate() {
   if (jumlahLokasiPerBaris > lokasi.length) jumlahLokasiPerBaris = lokasi.length;
   if (jumlahLokasiPerBaris < 1) jumlahLokasiPerBaris = 1;
 
-  const total = pembuka.length * promo.length * lokasi.length;
-  document.getElementById('maksInfo').textContent = `Maksimal kombinasi unik saat ini: ${total} (Pembuka ${pembuka.length} x Promo ${promo.length} x Lokasi ${lokasi.length}).`;
+  const total = hitungMaksKombinasi();
 
   if (jumlah > total) {
     alert(`Bank kata saat ini cuma bisa hasilkan maksimal ${total} kombinasi unik. Jumlah otomatis disesuaikan jadi ${total}.`);
