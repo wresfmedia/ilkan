@@ -36,7 +36,8 @@
     <li>Isi <b>Nama Produk</b> sesuai barang yang mau dipromosikan.</li>
     <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris satu pilihan. Boleh pakai tombol <b>✨ Rekomendasi</b>.</li>
     <li>Pilih wilayah dari dropdown <b>Pilih Kota/Kabupaten</b> (khusus Jabodetabek) — kecamatannya otomatis muncul sebagai checklist, centang yang mau dipakai, klik <b>➕ Tambahkan ke Bank Lokasi</b>.</li>
-    <li>Isi <b>Nomor HP</b>, tentukan <b>Jumlah Kalimat</b> dan <b>Jumlah Variasi Lokasi per Baris</b>.</li>
+    <li>Isi <b>Nomor HP</b>. Field <b>Jumlah Kalimat</b> otomatis terisi angka maksimal kombinasi, tapi bisa diubah manual.</li>
+    <li>Tentukan <b>Jumlah Variasi Lokasi per Baris</b>.</li>
     <li>Klik <b>🚀 Generate</b>, tunggu progress bar sampai 100%.</li>
     <li>Download lewat <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b>.</li>
   </ol>
@@ -46,7 +47,7 @@
 <input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
 
 <label>Bank Kata Pembuka</label>
-<textarea id="pembuka">Segar, Murni & Tanpa Bau Prengus
+<textarea id="pembuka" oninput="hitungMaksKombinasi()">Segar, Murni & Tanpa Bau Prengus
 Alami, Tanpa Campuran Bahan Kimia
 Terjamin Higienis & Berkualitas
 Kaya Nutrisi & Cocok Untuk Keluarga
@@ -59,7 +60,7 @@ Yuk, Ikuti Sunnah Rosul!</textarea>
 <button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi</button>
 
 <label>Bank Kata Promo</label>
-<textarea id="promo">Gratis Ongkir
+<textarea id="promo" oninput="hitungMaksKombinasi()">Gratis Ongkir
 Diskon 20%
 Beli 2 Gratis 1
 Cashback 15%
@@ -84,7 +85,7 @@ Diskon Spesial Akhir Pekan</textarea>
 </div>
 
 <label>Bank Lokasi/Kota</label>
-<textarea id="lokasi">Beji Kota Depok
+<textarea id="lokasi" oninput="hitungMaksKombinasi()">Beji Kota Depok
 Bojongsari Kota Depok
 Cilodong Kota Depok
 Cimanggis Kota Depok
@@ -94,7 +95,7 @@ Sawangan Kota Depok</textarea>
 <input type="text" id="nomor" value="08141-3333-512">
 
 <label>Jumlah Kalimat</label>
-<input type="number" id="jumlah" value="20">
+<input type="number" id="jumlah" value="20" oninput="tandaiManual(); batasiJumlah();">
 <div id="maksInfo">Maksimal kombinasi akan dihitung otomatis.</div>
 
 <label>Jumlah Variasi Lokasi per Baris</label>
@@ -111,8 +112,10 @@ Sawangan Kota Depok</textarea>
 <h3>Preview Hasil:</h3>
 <textarea id="hasil" readonly></textarea>
 
-  <script>
+<script>
 let hasilData = [];
+let maksKombinasi = 0;
+let jumlahDiubahManual = false;
 
 const kamusKreatif = {
   pembuka: ["Susu Kambing Murni Asli","Ingin Lebih Sehat?","Ikuti Sunnah Rosul Yuk!","Rasa Enak Tanpa Bau Amis","Diproses Higienis Setiap Hari","Direkomendasikan Ahli Gizi","Kenapa Harus Ragu Lagi?","Waktunya Beralih ke Alami!"],
@@ -126,16 +129,37 @@ function rekomendasi(jenis) {
   if (pool.length===0){ alert('Kamus rekomendasi sudah habis untuk kategori ini!'); return; }
   const tambahan = pool.sort(()=>Math.random()-0.5).slice(0,5);
   ta.value = existing.concat(tambahan).join('\n');
+  hitungMaksKombinasi();
 }
 
 function hitungMaksKombinasi() {
   const pembuka = document.getElementById('pembuka').value.trim().split('\n').filter(x=>x);
   const promo = document.getElementById('promo').value.trim().split('\n').filter(x=>x);
   const lokasi = document.getElementById('lokasi').value.trim().split('\n').filter(x=>x);
-  const total = pembuka.length * promo.length * lokasi.length;
+  maksKombinasi = pembuka.length * promo.length * lokasi.length;
+
   document.getElementById('maksInfo').textContent =
-    `Maksimal kombinasi unik: ${total} (Pembuka ${pembuka.length} x Promo ${promo.length} x Lokasi ${lokasi.length}).`;
-  return total;
+    `Maksimal kombinasi unik: ${maksKombinasi} (Pembuka ${pembuka.length} x Promo ${promo.length} x Lokasi ${lokasi.length}).`;
+
+  const inputJumlah = document.getElementById('jumlah');
+  if (!jumlahDiubahManual) {
+    inputJumlah.value = maksKombinasi;
+  } else {
+    batasiJumlah();
+  }
+  return maksKombinasi;
+}
+
+function tandaiManual() {
+  jumlahDiubahManual = true;
+}
+
+function batasiJumlah() {
+  const input = document.getElementById('jumlah');
+  let val = parseInt(input.value) || 0;
+  if (val > maksKombinasi) val = maksKombinasi;
+  if (val < 1) val = 1;
+  input.value = val;
 }
 
 const DATA_WILAYAH = {
@@ -218,11 +242,7 @@ function generate() {
   if (jumlahLokasiPerBaris < 1) jumlahLokasiPerBaris = 1;
 
   const total = hitungMaksKombinasi();
-  if (jumlah > total) {
-    alert(`Bank kata cuma bisa hasilkan maksimal ${total} kombinasi unik. Jumlah disesuaikan jadi ${total}.`);
-    jumlah = total;
-    document.getElementById('jumlah').value = total;
-  }
+  if (jumlah > total) jumlah = total;
 
   const progressBar = document.getElementById('progressBar');
   const statusText = document.getElementById('statusText');
