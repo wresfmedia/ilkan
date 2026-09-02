@@ -2,12 +2,12 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Generator Kalimat Promo Produk</title>
+<title>Generator Kalimat Promo + SEO</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 850px; margin: 20px auto; padding: 10px; }
-  textarea { width: 100%; height: 140px; font-family: monospace; margin-bottom: 5px; }
+  textarea { width: 100%; height: 110px; font-family: monospace; margin-bottom: 5px; }
   input, button { padding: 8px 14px; margin: 5px 5px 5px 0; cursor: pointer; }
-  #hasil { width: 100%; height: 280px; }
+  #hasil { width: 100%; height: 320px; }
   label { font-weight: bold; display: block; margin-top: 10px; }
   progress { width: 100%; height: 18px; margin: 8px 0; }
   .btn-ai { background: #6c5ce7; color: white; border: none; border-radius: 4px; }
@@ -19,10 +19,10 @@
 </head>
 <body>
 
-<h2>Generator Kalimat Promo Produk</h2>
+<h2>Generator Kalimat Promo + Keyword &amp; Hashtag</h2>
 
-<label>Nama Produk <span class="info-text">(akan otomatis ditambahkan di akhir tiap kalimat)</span></label>
-<input type="text" id="namaProduk" value="Susu Kambing" style="width: 100%; box-sizing: border-box;">
+<label>Nama Produk</label>
+<input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
 
 <label>Bank Kata Pembuka</label>
 <textarea id="pembuka">Ingin Lebih Sehat?
@@ -35,7 +35,7 @@ Bikin Tubuh Makin Bugar!
 Warisan Nabi yang Menyehatkan!
 Baru Kenal Manfaatnya?
 Saatnya Rasakan Kesegarannya!</textarea>
-<button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi Kreatif</button>
+<button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi</button>
 
 <label>Bank Kata Promo</label>
 <textarea id="promo">Diskon 20%
@@ -48,9 +48,9 @@ Paket Hemat Keluarga
 Voucher Belanja Rp10.000
 Potongan Harga Member Baru
 Bundling Hemat 2 Produk</textarea>
-<button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi Kreatif</button>
+<button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi</button>
 
-<label>Bank Kata Closing <span class="info-text">(jangan sertakan nama produk, otomatis ditambahkan)</span></label>
+<label>Bank Kata Closing <span class="info-text">(jangan sertakan nama produk)</span></label>
 <textarea id="closing">Lagi Cari
 Paket
 Yang Jual
@@ -61,16 +61,45 @@ Langganan
 Info
 Beli
 Cek</textarea>
-<button class="btn-ai" onclick="rekomendasi('closing')">✨ Rekomendasi Kreatif</button>
+<button class="btn-ai" onclick="rekomendasi('closing')">✨ Rekomendasi</button>
+
+<label>Kata Kunci Pendukung <span class="info-text">(akan digabung otomatis dgn nama produk)</span></label>
+<textarea id="keywordMod">murni
+asli
+terbaik
+berkualitas
+alami
+sehat
+murah
+original
+terpercaya
+segar
+halal
+herbal
+kemasan
+dewasa
+bubuk</textarea>
+
+<label>Hashtag Pendukung <span class="info-text">(tanpa tanda #, otomatis ditambahkan)</span></label>
+<textarea id="hashtagMod">PromoHariIni
+HidupSehat
+DiskonSpesial
+ProdukAlami
+KualitasTerbaik
+BelanjaHemat
+GayaHidupSehat
+TestimoniNyata
+PelangganBaru
+RekomendasiSehat</textarea>
 
 <label>Nomor HP</label>
 <input type="text" id="nomor" value="08141-3333-512">
 
 <label>Jumlah Kalimat</label>
-<input type="number" id="jumlah" value="100">
+<input type="number" id="jumlah" value="20">
 
 <br>
-<button class="btn-generate" onclick="generate()">🚀 Generate Kalimat</button>
+<button class="btn-generate" onclick="generate()">🚀 Generate</button>
 <button class="btn-download" onclick="unduh()">⬇ Download .txt</button>
 
 <progress id="progressBar" value="0" max="100" style="display:none;"></progress>
@@ -81,89 +110,59 @@ Cek</textarea>
 
 <script>
 const kamusKreatif = {
-  pembuka: [
-    "Kenapa Harus Ragu Lagi?", "Ini Dia Solusi Sehatmu!", "Yuk, Mulai Hidup Sehat!",
-    "Percaya Khasiat Alami?", "Waktunya Beralih ke Alami!", "Sudah Siap Lebih Bugar?",
-    "Ini Rahasia Sehat Keluarga!", "Yuk, Coba Sekarang Juga!", "Sehatmu Prioritas Kami!",
-    "Jangan Tunda Hidup Sehat!", "Mau Tubuh Lebih Fit?", "Sehat Dimulai Dari Sini!",
-    "Yuk, Perbaiki Pola Hidup!", "Kenali Manfaat Alaminya!", "Waktunya Berubah Jadi Sehat!"
-  ],
-  promo: [
-    "Gratis Sample Produk", "Diskon Spesial Akhir Pekan", "Extra Diskon 10%",
-    "Promo Buy 1 Get 1", "Harga Coret Spesial", "Gratis Merchandise Menarik",
-    "Diskon Member Eksklusif", "Paket Combo Hemat", "Cashback Hingga 25rb",
-    "Diskon Awal Bulan", "Promo Serba 15 Ribu", "Diskon Kejutan Hari Ini",
-    "Gratis Ongkir Area Tertentu", "Harga Grosir Terbatas", "Diskon Loyalitas Pelanggan"
-  ],
-  closing: [
-    "Konsultasi", "Tanya", "Coba", "Pesan", "Dapatkan", "Rekomendasi",
-    "Testimoni", "Referensi", "Jaminan", "Kualitas", "Manfaat", "Khasiat",
-    "Keunggulan", "Kesegaran", "Kemurnian"
-  ]
+  pembuka: ["Kenapa Harus Ragu Lagi?","Ini Dia Solusi Sehatmu!","Yuk, Mulai Hidup Sehat!","Percaya Khasiat Alami?","Waktunya Beralih ke Alami!"],
+  promo: ["Gratis Sample Produk","Diskon Spesial Akhir Pekan","Extra Diskon 10%","Promo Buy 1 Get 1","Harga Coret Spesial"],
+  closing: ["Konsultasi","Tanya","Coba","Pesan","Dapatkan"]
 };
 
 function rekomendasi(jenis) {
-  const textarea = document.getElementById(jenis);
-  const existing = textarea.value.trim().split('\n').filter(x => x);
-  const pool = kamusKreatif[jenis].filter(k => !existing.includes(k));
+  const ta = document.getElementById(jenis);
+  const existing = ta.value.trim().split('\n').filter(x=>x);
+  const pool = kamusKreatif[jenis].filter(k=>!existing.includes(k));
+  if (pool.length===0){ alert('Kamus sudah habis!'); return; }
+  const tambahan = pool.sort(()=>Math.random()-0.5).slice(0,5);
+  ta.value = existing.concat(tambahan).join('\n');
+}
 
-  if (pool.length === 0) {
-    alert('Kamus kreatif untuk kategori ini sudah habis dipakai semua!');
-    return;
-  }
-
-  const shuffled = pool.sort(() => Math.random() - 0.5);
-  const tambahan = shuffled.slice(0, Math.min(5, pool.length));
-
-  textarea.value = existing.concat(tambahan).join('\n');
-  alert('Ditambahkan ' + tambahan.length + ' kata baru: \n' + tambahan.join('\n'));
+function acakAmbil(arr, n) {
+  return [...arr].sort(()=>Math.random()-0.5).slice(0, n);
 }
 
 function generate() {
-  const pembuka = document.getElementById('pembuka').value.trim().split('\n').filter(x => x);
-  const promo = document.getElementById('promo').value.trim().split('\n').filter(x => x);
-  const closing = document.getElementById('closing').value.trim().split('\n').filter(x => x);
+  const pembuka = document.getElementById('pembuka').value.trim().split('\n').filter(x=>x);
+  const promo = document.getElementById('promo').value.trim().split('\n').filter(x=>x);
+  const closing = document.getElementById('closing').value.trim().split('\n').filter(x=>x);
+  const keywordMod = document.getElementById('keywordMod').value.trim().split('\n').filter(x=>x);
+  const hashtagMod = document.getElementById('hashtagMod').value.trim().split('\n').filter(x=>x);
   const nomor = document.getElementById('nomor').value;
-  const namaProduk = document.getElementById('namaProduk').value.trim();
+  const produk = document.getElementById('namaProduk').value.trim();
   let jumlah = parseInt(document.getElementById('jumlah').value);
 
-  if (pembuka.length === 0 || promo.length === 0 || closing.length === 0) {
-    alert('Semua bank kata harus diisi minimal 1 baris!');
-    return;
-  }
-
-  if (namaProduk === '') {
-    alert('Nama produk tidak boleh kosong!');
+  if (!produk || pembuka.length===0 || promo.length===0 || closing.length===0 || keywordMod.length<5 || hashtagMod.length<5) {
+    alert('Pastikan semua bank kata terisi, minimal 5 baris untuk keyword & hashtag!');
     return;
   }
 
   const total = pembuka.length * promo.length * closing.length;
-  if (jumlah > total) {
-    alert('Total kombinasi unik cuma ' + total + '. Ditampilkan semua (' + total + ' kalimat).');
-    jumlah = total;
-  }
+  if (jumlah > total) { jumlah = total; }
 
   const progressBar = document.getElementById('progressBar');
   const statusText = document.getElementById('statusText');
   progressBar.style.display = 'block';
   progressBar.value = 0;
-  statusText.textContent = 'Memulai proses...';
 
   let indexArray = Array.from({length: total}, (_, i) => i);
   for (let i = indexArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [indexArray[i], indexArray[j]] = [indexArray[j], indexArray[i]];
   }
-
   const dipilih = indexArray.slice(0, jumlah);
   const hasilKalimat = [];
-
   let idx = 0;
-  const batchSize = 50;
+  const batchSize = 30;
 
   function prosesBatch() {
     const batasAkhir = Math.min(idx + batchSize, dipilih.length);
-
     for (; idx < batasAkhir; idx++) {
       const id = dipilih[idx];
       const k = id % closing.length;
@@ -171,38 +170,40 @@ function generate() {
       const j = sisa % promo.length;
       const i = Math.floor(sisa / promo.length);
 
-      hasilKalimat.push(`${pembuka[i]} ${nomor} ${promo[j]} ${closing[k]} ${namaProduk}`);
-    }
+      const kalimat = `${pembuka[i]} ${nomor} ${promo[j]} ${closing[k]} ${produk}`;
 
+      const kw = acakAmbil(keywordMod, 5).map(m => `${produk} ${m}`.toLowerCase());
+      const tag = acakAmbil(hashtagMod, 5).map(m => `#${m.replace(/\s+/g,'')}`);
+      const tagProduk = `#${produk.replace(/\s+/g,'')}`;
+
+      hasilKalimat.push(`${kalimat}\nKeyword: ${kw.join(', ')}\nHashtag: ${tagProduk} ${tag.join(' ')}\n`);
+    }
     const persen = Math.round((idx / dipilih.length) * 100);
     progressBar.value = persen;
-    statusText.textContent = `Memproses... ${idx}/${dipilih.length} kalimat (${persen}%)`;
-
+    statusText.textContent = `Memproses... ${idx}/${dipilih.length} (${persen}%)`;
     if (idx < dipilih.length) {
       setTimeout(prosesBatch, 10);
     } else {
       document.getElementById('hasil').value = hasilKalimat.join('\n');
-      statusText.textContent = `Selesai! ${hasilKalimat.length} kalimat unik berhasil dibuat.`;
-      setTimeout(() => { progressBar.style.display = 'none'; }, 1500);
+      statusText.textContent = `Selesai! ${dipilih.length} kalimat + keyword/hashtag berhasil dibuat.`;
+      setTimeout(()=>{ progressBar.style.display='none'; }, 1500);
     }
   }
-
   prosesBatch();
 }
 
 function unduh() {
   const teks = document.getElementById('hasil').value;
-  if (!teks) { alert('Generate kalimat dulu ya!'); return; }
-  const namaProduk = document.getElementById('namaProduk').value.trim().replace(/\s+/g, '_');
+  if (!teks) { alert('Generate dulu ya!'); return; }
+  const produk = document.getElementById('namaProduk').value.trim().replace(/\s+/g,'_');
   const blob = new Blob([teks], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `kalimat_promo_${namaProduk}.txt`;
+  a.download = `kalimat_promo_${produk}.txt`;
   a.click();
   URL.revokeObjectURL(url);
 }
 </script>
-
 </body>
 </html>
