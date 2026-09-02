@@ -76,19 +76,7 @@ original
 terpercaya
 segar</textarea>
 
-<label>Hashtag Pendukung <span class="info-text">(tanpa tanda #)</span></label>
-<textarea id="hashtagMod">PromoHariIni
-HidupSehat
-DiskonSpesial
-ProdukAlami
-KualitasTerbaik
-BelanjaHemat
-GayaHidupSehat
-TestimoniNyata
-PelangganBaru
-RekomendasiSehat</textarea>
-
-<label>Bank Lokasi/Kota <span class="info-text">(otomatis digabung ke keyword & hashtag)</span></label>
+<label>Bank Lokasi/Kota <span class="info-text">(otomatis digabung ke keyword & hashtag, tidak akan berulang dalam 1 kalimat)</span></label>
 <textarea id="lokasi">Beji Kota Depok
 Bojongsari Kota Depok
 Cilodong Kota Depok
@@ -145,14 +133,13 @@ function generate() {
   const promo = document.getElementById('promo').value.trim().split('\n').filter(x=>x);
   const closing = document.getElementById('closing').value.trim().split('\n').filter(x=>x);
   const keywordMod = document.getElementById('keywordMod').value.trim().split('\n').filter(x=>x);
-  const hashtagMod = document.getElementById('hashtagMod').value.trim().split('\n').filter(x=>x);
   const lokasi = document.getElementById('lokasi').value.trim().split('\n').filter(x=>x);
   const nomor = document.getElementById('nomor').value;
   const produk = document.getElementById('namaProduk').value.trim();
   let jumlah = parseInt(document.getElementById('jumlah').value);
 
-  if (!produk || pembuka.length===0 || promo.length===0 || closing.length===0 || keywordMod.length<3 || hashtagMod.length<3 || lokasi.length<2) {
-    alert('Pastikan semua bank kata terisi (minimal 3 keyword, 3 hashtag, 2 lokasi)!');
+  if (!produk || pembuka.length===0 || promo.length===0 || closing.length===0 || keywordMod.length<3 || lokasi.length<2) {
+    alert('Pastikan semua bank kata terisi (minimal 3 keyword, 2 lokasi)!');
     return;
   }
 
@@ -185,17 +172,17 @@ function generate() {
 
       const kalimat = `${pembuka[i]} ${nomor} ${promo[j]} ${closing[k]} ${produk}`;
 
-      // Keyword: gabungan produk + modifier + lokasi
-      const kw = acakAmbil(keywordMod, 5).map(m => {
-        const lok = lokasi[Math.floor(Math.random() * lokasi.length)];
-        return `${produk} ${m} di ${lok}`.toLowerCase();
+      const jumlahLokasi = Math.min(5, lokasi.length);
+      const lokasiTerpilih = acakAmbil(lokasi, jumlahLokasi);
+
+      const kw = lokasiTerpilih.map(lok => {
+        const mod = keywordMod[Math.floor(Math.random() * keywordMod.length)];
+        return `${produk} ${mod} di ${lok}`.toLowerCase();
       });
 
-      // Hashtag: kombinasi modifier + lokasi
-      const modTags = acakAmbil(hashtagMod, 3).map(m => `#${m.replace(/\s+/g,'')}`);
-      const lokTags = acakAmbil(lokasi, 2).map(l => `#${produk.replace(/\s+/g,'')}${l.replace(/\s+/g,'')}`);
+      const tagFromKw = kw.map(k => `#${k.replace(/\s+/g,'')}`);
       const tagProduk = `#${produk.replace(/\s+/g,'')}`;
-      const hashtagFinal = [tagProduk, ...modTags, ...lokTags].join(' ');
+      const hashtagFinal = [tagProduk, ...tagFromKw].join(' ');
 
       hasilData.push({
         kalimat: kalimat,
