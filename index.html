@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Generator Kalimat Promo + Excel Export</title>
+<title>Generator Kalimat Promo + Lokasi + Excel Export</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 850px; margin: 20px auto; padding: 10px; }
   textarea { width: 100%; height: 110px; font-family: monospace; margin-bottom: 5px; }
@@ -20,7 +20,7 @@
 </head>
 <body>
 
-<h2>Generator Kalimat Promo + Export Excel (3 Kolom)</h2>
+<h2>Generator Kalimat Promo + Lokasi + Export Excel</h2>
 
 <label>Nama Produk</label>
 <input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
@@ -88,6 +88,19 @@ TestimoniNyata
 PelangganBaru
 RekomendasiSehat</textarea>
 
+<label>Bank Lokasi/Kota <span class="info-text">(otomatis digabung ke keyword & hashtag)</span></label>
+<textarea id="lokasi">Beji Kota Depok
+Bojongsari Kota Depok
+Cilodong Kota Depok
+Cimanggis Kota Depok
+Cinere Kota Depok
+Cipayung Kota Depok
+Limo Kota Depok
+Pancoran Mas Kota Depok
+Sawangan Kota Depok
+Sukmajaya Kota Depok
+Tapos Kota Depok</textarea>
+
 <label>Nomor HP</label>
 <input type="text" id="nomor" value="08141-3333-512">
 
@@ -106,7 +119,7 @@ RekomendasiSehat</textarea>
 <textarea id="hasil" readonly></textarea>
 
 <script>
-let hasilData = []; // Menyimpan data terstruktur: {kalimat, hashtag, keyword}
+let hasilData = [];
 
 const kamusKreatif = {
   pembuka: ["Kenapa Harus Ragu Lagi?","Ini Dia Solusi Sehatmu!","Yuk, Mulai Hidup Sehat!","Percaya Khasiat Alami?","Waktunya Beralih ke Alami!"],
@@ -133,12 +146,13 @@ function generate() {
   const closing = document.getElementById('closing').value.trim().split('\n').filter(x=>x);
   const keywordMod = document.getElementById('keywordMod').value.trim().split('\n').filter(x=>x);
   const hashtagMod = document.getElementById('hashtagMod').value.trim().split('\n').filter(x=>x);
+  const lokasi = document.getElementById('lokasi').value.trim().split('\n').filter(x=>x);
   const nomor = document.getElementById('nomor').value;
   const produk = document.getElementById('namaProduk').value.trim();
   let jumlah = parseInt(document.getElementById('jumlah').value);
 
-  if (!produk || pembuka.length===0 || promo.length===0 || closing.length===0 || keywordMod.length<5 || hashtagMod.length<5) {
-    alert('Pastikan semua bank kata terisi, minimal 5 baris untuk keyword & hashtag!');
+  if (!produk || pembuka.length===0 || promo.length===0 || closing.length===0 || keywordMod.length<3 || hashtagMod.length<3 || lokasi.length<2) {
+    alert('Pastikan semua bank kata terisi (minimal 3 keyword, 3 hashtag, 2 lokasi)!');
     return;
   }
 
@@ -156,7 +170,7 @@ function generate() {
     [indexArray[i], indexArray[j]] = [indexArray[j], indexArray[i]];
   }
   const dipilih = indexArray.slice(0, jumlah);
-  hasilData = []; // reset data setiap generate baru
+  hasilData = [];
   let idx = 0;
   const batchSize = 30;
 
@@ -170,13 +184,22 @@ function generate() {
       const i = Math.floor(sisa / promo.length);
 
       const kalimat = `${pembuka[i]} ${nomor} ${promo[j]} ${closing[k]} ${produk}`;
-      const kw = acakAmbil(keywordMod, 5).map(m => `${produk} ${m}`.toLowerCase());
-      const tag = acakAmbil(hashtagMod, 5).map(m => `#${m.replace(/\s+/g,'')}`);
+
+      // Keyword: gabungan produk + modifier + lokasi
+      const kw = acakAmbil(keywordMod, 5).map(m => {
+        const lok = lokasi[Math.floor(Math.random() * lokasi.length)];
+        return `${produk} ${m} di ${lok}`.toLowerCase();
+      });
+
+      // Hashtag: kombinasi modifier + lokasi
+      const modTags = acakAmbil(hashtagMod, 3).map(m => `#${m.replace(/\s+/g,'')}`);
+      const lokTags = acakAmbil(lokasi, 2).map(l => `#${produk.replace(/\s+/g,'')}${l.replace(/\s+/g,'')}`);
       const tagProduk = `#${produk.replace(/\s+/g,'')}`;
+      const hashtagFinal = [tagProduk, ...modTags, ...lokTags].join(' ');
 
       hasilData.push({
         kalimat: kalimat,
-        hashtag: `${tagProduk} ${tag.join(' ')}`,
+        hashtag: hashtagFinal,
         keyword: kw.join(', ')
       });
     }
