@@ -2,66 +2,180 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ILkan - Sasar Para Pembeli</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 850px; margin: 20px auto; padding: 10px; }
-  textarea { width: 100%; height: 100px; font-family: monospace; margin-bottom: 5px; box-sizing: border-box; }
-  input, button, select { padding: 8px 14px; margin: 5px 5px 5px 0; cursor: pointer; }
-  select { width: 60%; box-sizing: border-box; }
-  #hasil { width: 100%; height: 320px; box-sizing: border-box; }
-  label { font-weight: bold; display: block; margin-top: 10px; }
-  progress { width: 100%; height: 18px; margin: 8px 0; }
-  .btn-ai { background: #6c5ce7; color: white; border: none; border-radius: 4px; }
-  .btn-generate { background: #00b894; color: white; border: none; border-radius: 4px; }
-  .btn-download { background: #0984e3; color: white; border: none; border-radius: 4px; }
-  .btn-excel { background: #1d6f42; color: white; border: none; border-radius: 4px; }
-  .btn-kecil { background: #636e72; color: white; border: none; border-radius: 4px; font-size: 12px; padding: 6px 10px; }
-  #statusText, #maksInfo { font-size: 13px; color: #555; }
-  details { background: #f4f6f8; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; }
-  summary { font-weight: bold; cursor: pointer; font-size: 16px; color: #2d3436; }
-  details ol { margin-top: 10px; line-height: 1.7; }
-  #daftarKecamatan { display:none; margin-top:10px; border:1px solid #ddd; border-radius:6px; padding:10px; max-height:220px; overflow-y:auto; background:#fafafa; }
-  #daftarKecamatan label { font-weight: normal; display:block; margin:4px 0; }
-  #daftarKecamatan input[type=checkbox] { width:auto; margin-right:6px; }
-  #kontrolKecamatan { display:none; margin-top:8px; }
+  :root{
+    --primary:#0284C7;
+    --primary-dark:#026da3;
+    --accent-purple:#6c5ce7;
+    --accent-green:#00b894;
+    --accent-blue:#0984e3;
+    --accent-dark:#1d6f42;
+    --accent-orange:#e67e22;
+    --bg:#f1f5f9;
+    --card:#ffffff;
+    --border:#e2e8f0;
+    --text:#1e293b;
+    --muted:#64748b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:0 16px 60px; background:var(--bg); color:var(--text);
+    font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap{max-width:880px; margin:0 auto;}
+
+  header.app-header{display:flex; align-items:center; gap:14px; padding:28px 0 2px;}
+  .tagline{margin:0 0 4px 66px; color:var(--primary); font-style:italic; font-size:15px;}
+  .subtitle{margin:0 0 20px 66px; color:var(--muted); font-size:14px;}
+
+  details.guide{
+    background:#eef6fc; border:1px solid #cfe8f7; border-radius:var(--radius);
+    padding:14px 18px; margin-bottom:20px;
+  }
+  details.guide summary{font-weight:700; cursor:pointer; font-size:15.5px; color:var(--primary-dark); outline:none;}
+  details.guide ol{margin:12px 0 2px; padding-left:20px; line-height:1.75; font-size:13.8px; color:#334155;}
+  details.guide b{color:var(--text);}
+
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px 22px; margin-bottom:18px; box-shadow:0 1px 3px rgba(15,23,42,.05);
+  }
+  .card h2{
+    display:flex; align-items:center; gap:10px; font-size:16.5px; margin:0 0 4px; color:var(--text);
+  }
+  .step{
+    display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+    border-radius:50%; background:var(--primary); color:#fff; font-size:13px; font-weight:700; flex-shrink:0;
+  }
+  .card > p.desc{margin:2px 0 14px 36px; color:var(--muted); font-size:13px;}
+
+  label{font-weight:600; font-size:13.5px; display:block; margin:14px 0 6px; color:var(--text);}
+  label.first{margin-top:0;}
+  .hint{font-weight:400; color:var(--muted); font-size:12.3px;}
+
+  input[type=text], input[type=number], textarea, select{
+    width:100%; border:1.5px solid var(--border); border-radius:9px; padding:10px 12px;
+    font-size:14px; font-family:inherit; background:#fff; transition:border-color .15s, box-shadow .15s;
+  }
+  textarea{font-family:'Consolas','Courier New',monospace; font-size:13px; line-height:1.55; resize:vertical;}
+  input:focus, textarea:focus, select:focus{
+    outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(2,132,199,.12);
+  }
+  #hasil{height:340px; background:#0f172a; color:#e2e8f0; border-color:#0f172a;}
+  #kalimatIklan{height:200px;}
+
+  .row{display:flex; gap:14px; flex-wrap:wrap;}
+  .row > div{flex:1; min-width:170px;}
+
+  button{
+    border:none; border-radius:9px; padding:11px 17px; font-size:13.5px; font-weight:700;
+    cursor:pointer; display:inline-flex; align-items:center; gap:7px; color:#fff;
+    transition:filter .15s, transform .08s; box-shadow:0 1px 2px rgba(0,0,0,.08);
+  }
+  button:hover{filter:brightness(1.08);}
+  button:active{transform:scale(.97);}
+  .btn-ai{background:var(--accent-purple);}
+  .btn-generate{background:var(--accent-green);}
+  .btn-download{background:var(--accent-blue);}
+  .btn-excel{background:var(--accent-dark);}
+  .btn-gabung{background:linear-gradient(135deg,#f6a821,var(--accent-orange));}
+  .btn-kecil{background:#64748b; font-size:12px; padding:7px 12px; font-weight:600;}
+
+  .btn-row{display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin-top:10px;}
+  .num-inline{width:90px !important; display:inline-block;}
+
+  progress{width:100%; height:16px; margin:14px 0 4px; border-radius:8px; overflow:hidden; border:none;}
+  progress::-webkit-progress-bar{background:#e2e8f0; border-radius:8px;}
+  progress::-webkit-progress-value{background:linear-gradient(90deg,var(--primary),var(--accent-green)); border-radius:8px;}
+  #statusText{font-size:13px; color:var(--muted); min-height:18px;}
+  #maksInfo{font-size:12.8px; color:var(--muted); margin-top:6px; background:#f8fafc; border:1px dashed var(--border); border-radius:8px; padding:8px 10px;}
+
+  #daftarKecamatan{
+    display:none; margin-top:10px; border:1px solid var(--border); border-radius:10px;
+    padding:12px 14px; max-height:230px; overflow-y:auto; background:#f8fafc;
+    column-count:2; column-gap:10px;
+  }
+  #daftarKecamatan label{
+    font-weight:400; display:block; margin:0 0 8px; break-inside:avoid; font-size:13.3px; color:var(--text);
+  }
+  #daftarKecamatan input[type=checkbox]{width:auto; margin-right:6px; accent-color:var(--primary);}
+  #kontrolKecamatan{display:none; margin-top:10px; gap:8px;}
+
+  .divider{border:none; border-top:1px dashed var(--border); margin:18px 0;}
+
+  .badge-note{
+    display:inline-block; background:#fff7e6; color:#92620a; border:1px solid #f5d998;
+    border-radius:8px; padding:8px 11px; font-size:12.5px; margin-top:10px;
+  }
+
+  footer{
+    margin-top:26px; padding-top:16px; border-top:1px solid var(--border);
+    font-size:13px; color:var(--muted); text-align:center;
+  }
+  footer a{color:var(--primary); text-decoration:none; font-weight:700;}
+
+  @media (max-width:560px){
+    .tagline, .subtitle{margin-left:0;}
+    header.app-header{flex-wrap:wrap;}
+    #daftarKecamatan{column-count:1;}
+    .card{padding:16px;}
+  }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div style="display:flex; align-items:center; gap:14px; margin-bottom:2px;">
+<header class="app-header">
   <svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo ILkan">
     <rect x="0" y="0" width="52" height="52" rx="12" fill="#38BDF8"/>
     <rect x="2" y="2" width="48" height="48" rx="10" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
     <text x="26" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFFFFF" text-anchor="middle">IL</text>
   </svg>
   <span style="font-size:32px; font-weight:bold; color:#000000; font-family:Arial, sans-serif; letter-spacing:.3px;">IL<span style="color:#0284C7;">kan</span></span>
-</div>
-<p style="margin:0 0 6px 66px; color:#0284C7; font-style:italic; font-family:Arial, sans-serif; font-size:15px;">Sasar Para Pembeli..</p>
-<p style="margin:0 0 18px; color:#555; font-family:Arial, sans-serif; font-size:14px;">Generator Kalimat Promo</p>
+</header>
+<p class="tagline">Sasar Para Pembeli..</p>
+<p class="subtitle">Generator Kalimat Promo &amp; Deskripsi Iklan</p>
 
-<details open>
+<details class="guide" open>
   <summary>📘 Cara Penggunaan (klik untuk buka/tutup)</summary>
   <ol>
     <li>Isi <b>Nama Produk</b> sesuai barang yang mau dipromosikan.</li>
-    <li>Atur <b>Maks Karakter Bank Kata</b> (default 45) supaya kalimat pembuka/promo yang dihasilkan tidak terlalu panjang dan memenuhi halaman saat dipakai di flyer.</li>
-    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris satu pilihan. Klik <b>✨ Rekomendasi</b> untuk menambah 5 variasi kreatif, atau <b>🎯 Generate Otomatis</b> untuk langsung mengisi sekaligus sebanyak angka yang diinput (default 50) — variasi yang sudah pernah dibuat sebelumnya (tersimpan di perangkat ini) tidak akan diulang. Kalau variasi mulai menipis, klik <b>↺ Reset Riwayat</b> di sebelahnya untuk mengulang dari awal. Khusus promo, persentase diskon/cashback yang dihasilkan otomatis dibatasi maksimal 15%.</li>
-    <li>Pilih wilayah dari dropdown <b>Pilih Kota/Kabupaten</b> (khusus Jabodetabek) — kecamatannya otomatis muncul sebagai checklist, centang yang mau dipakai, klik <b>➕ Tambahkan ke Bank Lokasi</b>.</li>
-    <li>Isi <b>Nomor HP</b>. Field <b>Jumlah Kalimat</b> otomatis terisi angka maksimal kombinasi, tapi bisa diubah manual.</li>
-    <li>Tentukan <b>Jumlah Variasi Lokasi per Baris</b>.</li>
-    <li>Klik <b>🚀 Generate</b>, tunggu progress bar sampai 100%.</li>
-    <li>Download lewat <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b>.</li>
+    <li>Atur <b>Maks Karakter Bank Kata</b> (default 45) supaya kalimat pembuka/promo yang dihasilkan tidak terlalu panjang.</li>
+    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris satu pilihan. Klik <b>✨ Rekomendasi</b> untuk menambah 5 variasi, atau <b>🎯 Generate Otomatis</b> untuk langsung mengisi banyak sekaligus — variasi yang pernah dibuat tidak akan diulang (tersimpan di perangkat ini). Klik <b>↺ Reset Riwayat</b> bila variasi mulai menipis.</li>
+    <li>Pilih wilayah dari dropdown <b>Pilih Kota/Kabupaten</b> (khusus Jabodetabek) — centang kecamatan yang mau dipakai, lalu klik <b>➕ Tambahkan ke Bank Lokasi</b>.</li>
+    <li>Isi <b>Nomor HP</b>, atur <b>Jumlah Kalimat</b> dan <b>Jumlah Variasi Lokasi per Baris</b>, lalu klik <b>🚀 Generate</b>.</li>
+    <li>Tempel naskah/deskripsi panjang di kolom <b>Kalimat Iklan (Deskripsi)</b>, lalu klik <b>🔗 Gabungkan</b> — setiap hasil generate akan disisipi deskripsi ini menjadi satu naskah iklan utuh (judul + deskripsi + tags lokasi + hashtag).</li>
+    <li>Download hasil lewat <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b> (kolom: No, Judul, Deskripsi, Tags/Label, Hashtag).</li>
   </ol>
 </details>
 
-<label>Nama Produk</label>
-<input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
+<!-- 1. PRODUK -->
+<section class="card">
+  <h2><span class="step">1</span> Produk &amp; Pengaturan</h2>
+  <p class="desc">Nama produk dan batas panjang kalimat pembuka/promo.</p>
 
-<label>Maks Karakter Bank Kata (Pembuka & Promo)</label>
-<input type="number" id="maksKarakter" value="45" min="15" max="150" style="width:100px;">
-<span style="font-size:13px; color:#555;">agar kalimat tidak terlalu panjang saat dipakai di flyer</span>
+  <label class="first">Nama Produk</label>
+  <input type="text" id="namaProduk" value="Susu Kambing">
 
-<label>Bank Kata Pembuka</label>
-<textarea id="pembuka" oninput="hitungMaksKombinasi()">Susu Kambing Murni, Segar & Tanpa Bau Prengus
+  <label>Maks Karakter Bank Kata (Pembuka &amp; Promo)</label>
+  <div class="row">
+    <div style="flex:0 0 120px; min-width:120px;">
+      <input type="number" id="maksKarakter" value="45" min="15" max="150">
+    </div>
+    <div style="flex:2; align-self:center;">
+      <span class="hint">agar kalimat tidak terlalu panjang saat dipakai di flyer</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2. BANK KATA -->
+<section class="card">
+  <h2><span class="step">2</span> Bank Kata Pembuka</h2>
+  <p class="desc">Satu baris = satu pilihan kalimat pembuka.</p>
+  <textarea id="pembuka" oninput="hitungMaksKombinasi()">Susu Kambing Murni, Segar & Tanpa Bau Prengus
 Alami, Tanpa Campuran Bahan Kimia
 Terjamin Higienis & Berkualitas
 Kaya Nutrisi & Cocok Untuk Keluarga
@@ -81,14 +195,18 @@ Diminum Rutin, Badan Makin Fit
 Susu Kambing Kualitas Premium
 Stok Terbatas, Buruan Order
 Rasa Creamy, Bikin Nagih</textarea>
-<button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi</button>
-<button class="btn-kecil" onclick="resetRiwayat('pembuka')">↺ Reset Riwayat</button>
-<br>
-<input type="number" id="jumlahOtomatisPembuka" value="50" min="5" max="300" style="width:80px;">
-<button class="btn-generate" onclick="generateOtomatis('pembuka')">🎯 Generate Otomatis</button>
+  <div class="btn-row">
+    <button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi</button>
+    <button class="btn-kecil" onclick="resetRiwayat('pembuka')">↺ Reset Riwayat</button>
+    <input type="number" class="num-inline" id="jumlahOtomatisPembuka" value="50" min="5" max="300">
+    <button class="btn-generate" onclick="generateOtomatis('pembuka')">🎯 Generate Otomatis</button>
+  </div>
+</section>
 
-<label>Bank Kata Promo</label>
-<textarea id="promo" oninput="hitungMaksKombinasi()">Gratis Ongkir
+<section class="card">
+  <h2><span class="step">3</span> Bank Kata Promo</h2>
+  <p class="desc">Satu baris = satu pilihan kalimat promo. Persentase diskon/cashback otomatis dibatasi maks 15%.</p>
+  <textarea id="promo" oninput="hitungMaksKombinasi()">Gratis Ongkir
 Diskon 15%
 Beli 2 Gratis 1
 Cashback 15%
@@ -108,26 +226,36 @@ Bonus Merchandise Menarik
 Harga Coret Khusus Hari Ini
 Diskon Ekstra Weekday
 Beli Banyak Lebih Hemat</textarea>
-<button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi</button>
-<button class="btn-kecil" onclick="resetRiwayat('promo')">↺ Reset Riwayat</button>
-<br>
-<input type="number" id="jumlahOtomatisPromo" value="50" min="5" max="300" style="width:80px;">
-<button class="btn-generate" onclick="generateOtomatis('promo')">🎯 Generate Otomatis</button>
+  <div class="btn-row">
+    <button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi</button>
+    <button class="btn-kecil" onclick="resetRiwayat('promo')">↺ Reset Riwayat</button>
+    <input type="number" class="num-inline" id="jumlahOtomatisPromo" value="50" min="5" max="300">
+    <button class="btn-generate" onclick="generateOtomatis('promo')">🎯 Generate Otomatis</button>
+  </div>
+</section>
 
-<label>Pilih Kota/Kabupaten (Jabodetabek)</label>
-<select id="pilihKota" onchange="tampilkanCeklisKecamatan()">
-  <option value="">-- Pilih Kota --</option>
-</select>
-<button class="btn-kecil" onclick="tambahKeBankLokasi()">➕ Tambahkan ke Bank Lokasi</button>
+<!-- 4. LOKASI -->
+<section class="card">
+  <h2><span class="step">4</span> Lokasi</h2>
+  <p class="desc">Pilih kota Jabodetabek untuk memunculkan checklist kecamatan, atau tulis manual di Bank Lokasi.</p>
 
-<div id="daftarKecamatan"></div>
-<div id="kontrolKecamatan">
-  <button class="btn-kecil" onclick="ceklisSemua(true)">Pilih Semua</button>
-  <button class="btn-kecil" onclick="ceklisSemua(false)">Batal Semua</button>
-</div>
+  <label class="first">Pilih Kota/Kabupaten (Jabodetabek)</label>
+  <select id="pilihKota" onchange="tampilkanCeklisKecamatan()">
+    <option value="">-- Pilih Kota --</option>
+  </select>
 
-<label>Bank Lokasi/Kota</label>
-<textarea id="lokasi" oninput="hitungMaksKombinasi()">Beji Kota Depok
+  <div id="daftarKecamatan"></div>
+  <div id="kontrolKecamatan" class="btn-row">
+    <button class="btn-kecil" onclick="ceklisSemua(true)">Pilih Semua</button>
+    <button class="btn-kecil" onclick="ceklisSemua(false)">Batal Semua</button>
+    <button class="btn-ai" onclick="tambahKeBankLokasi()">➕ Tambahkan ke Bank Lokasi</button>
+  </div>
+  <div id="kontrolKecamatanFallback" class="btn-row" style="display:none;">
+    <button class="btn-ai" onclick="tambahKeBankLokasi()">➕ Tambahkan ke Bank Lokasi</button>
+  </div>
+
+  <label>Bank Lokasi/Kota</label>
+  <textarea id="lokasi" oninput="hitungMaksKombinasi()">Beji Kota Depok
 Bojongsari Kota Depok
 Cilodong Kota Depok
 Cimanggis Kota Depok
@@ -138,31 +266,67 @@ Pancoran Mas Kota Depok
 Sawangan Kota Depok
 Sukmajaya Kota Depok
 Tapos Kota Depok</textarea>
+</section>
 
-<label>Nomor HP</label>
-<input type="text" id="nomor" value="08141-3333-512">
+<!-- 5. GENERATE -->
+<section class="card">
+  <h2><span class="step">5</span> Kontak &amp; Generate</h2>
+  <p class="desc">Data kontak dan jumlah kalimat yang ingin dibuat.</p>
 
-<label>Jumlah Kalimat</label>
-<input type="number" id="jumlah" value="20" oninput="tandaiManual(); batasiJumlah();">
-<div id="maksInfo">Maksimal kombinasi akan dihitung otomatis.</div>
+  <label class="first">Nomor HP</label>
+  <input type="text" id="nomor" value="08141-3333-512">
 
-<label>Jumlah Variasi Lokasi per Baris</label>
-<input type="number" id="jumlahLokasiPerBaris" value="5">
+  <div class="row">
+    <div>
+      <label>Jumlah Kalimat</label>
+      <input type="number" id="jumlah" value="20" oninput="tandaiManual(); batasiJumlah();">
+    </div>
+    <div>
+      <label>Jumlah Variasi Lokasi per Baris</label>
+      <input type="number" id="jumlahLokasiPerBaris" value="5">
+    </div>
+  </div>
+  <div id="maksInfo">Maksimal kombinasi akan dihitung otomatis.</div>
 
-<br>
-<button class="btn-generate" onclick="generate()">🚀 Generate</button>
-<button class="btn-download" onclick="unduhTxt()">⬇ Download .txt</button>
-<button class="btn-excel" onclick="unduhExcel()">📊 Download Excel (3 Kolom)</button>
+  <div class="btn-row">
+    <button class="btn-generate" onclick="generate()">🚀 Generate</button>
+  </div>
 
-<progress id="progressBar" value="0" max="100" style="display:none;"></progress>
-<div id="statusText"></div>
+  <progress id="progressBar" value="0" max="100" style="display:none;"></progress>
+  <div id="statusText"></div>
+</section>
 
-<h3>Preview Hasil:</h3>
-<textarea id="hasil" readonly></textarea>
+<!-- 6. GABUNGKAN -->
+<section class="card">
+  <h2><span class="step">6</span> Kalimat Iklan (Deskripsi)</h2>
+  <p class="desc">Tempel naskah/deskripsi iklan lengkap di sini (misalnya isi promosi jasa/produk). Klik <b>Gabungkan</b> untuk menyisipkannya ke setiap hasil generate di atas, sehingga terbentuk satu naskah utuh: <i>Judul → Deskripsi → Tags Lokasi → Hashtag</i>.</p>
+  <textarea id="kalimatIklan" placeholder="Contoh: Mewujudkan tasyakuran aqiqah yang khidmat, lezat, dan sesuai syariat kini tidak perlu lagi membuat Bunda dan Ayah pusing...
 
-<footer style="margin-top:30px; padding-top:14px; border-top:1px solid #ddd; font-family:Arial, sans-serif; font-size:13px; color:#555; text-align:center;">
-  ILkan &copy; 2026 - Powered by <a href="https://wied.web.id" target="_blank" rel="noopener" style="color:#0284C7; text-decoration:none; font-weight:bold;">Ishbiruu Media</a>
+(Tempel di sini seluruh paragraf deskripsi/body iklan Anda. Teks ini akan sama untuk semua baris hasil, hanya judul, tags lokasi, dan hashtag saja yang otomatis berbeda-beda per baris.)"></textarea>
+  <div class="btn-row">
+    <button class="btn-gabung" onclick="gabungkan()">🔗 Gabungkan</button>
+  </div>
+  <div class="badge-note">⚠️ Klik <b>🚀 Generate</b> dulu sebelum menggabungkan. Kalau Generate diulang, klik Gabungkan lagi agar deskripsi tergabung ulang.</div>
+</section>
+
+<!-- 7. HASIL -->
+<section class="card">
+  <h2><span class="step">7</span> Preview &amp; Download</h2>
+  <p class="desc">Hasil akhir siap dicopy, atau diunduh sebagai .txt / Excel.</p>
+
+  <textarea id="hasil" readonly></textarea>
+
+  <div class="btn-row">
+    <button class="btn-download" onclick="unduhTxt()">⬇ Download .txt</button>
+    <button class="btn-excel" onclick="unduhExcel()">📊 Download Excel (No, Judul, Deskripsi, Tags/Label, Hashtag)</button>
+  </div>
+</section>
+
+<footer>
+  ILkan &copy; 2026 - Powered by <a href="https://wied.web.id" target="_blank" rel="noopener">Ishbiruu Media</a>
 </footer>
+
+</div>
 
 <script>
 let hasilData = [];
@@ -259,19 +423,15 @@ const templatePromoNumeric = [
 
 function poolPembuka(produk){
   const pool = [];
-  // 1. hook umum + deskripsi umum — tanpa menyebut nama produk sama sekali
   hookPembuka.forEach(h=>{
     suffixPembuka.forEach(s=>{ pool.push(h+', '+s); });
   });
-  // 2. deskripsi umum di depan, nama produk baru muncul di ujung kalimat
   suffixPembuka.forEach(s=>{
     tailPembuka.forEach(t=>{ pool.push(s + fillP(t, produk)); });
   });
-  // 3. nama produk di depan — porsinya sengaja lebih sedikit agar tidak monoton
   prefixPembuka.forEach(p=>{
     suffixPembuka.forEach(s=>{ pool.push(fillP(p,produk)+', '+s); });
   });
-  // 4. kalimat berdiri sendiri dengan posisi nama produk yang beragam
   pool.push(...standalonePembuka.map(t=>fillP(t,produk)));
   return pool;
 }
@@ -420,7 +580,7 @@ function tampilkanCeklisKecamatan() {
     `<label><input type="checkbox" value="${k}"> ${k}</label>`
   ).join('');
   box.style.display = 'block';
-  kontrol.style.display = 'block';
+  kontrol.style.display = 'flex';
 }
 
 function ceklisSemua(status) {
@@ -534,13 +694,14 @@ function generate() {
       const kw = lokasiTerpilih.map(lok => buatKeywordSEO(produk, lok));
       const tagFromKw = kw.map(kk => `#${kk.replace(/\s+/g,'').toLowerCase()}`);
 
-            const hashtagUtama = `#${produk.replace(/\s+/g,'').toLowerCase()}`;
-      const kalimatLengkap = `${kalimat}\n${kw.join(' | ')}\n${hashtagUtama} ${tagFromKw.join(' ')}`;
+      const hashtagUtama = `#${produk.replace(/\s+/g,'').toLowerCase()}`;
 
       hasilData.push({
         kalimat: kalimat,
         keyword: kw.join(', '),
-        hashtag: `${hashtagUtama} ${tagFromKw.join(' ')}`
+        hashtag: `${hashtagUtama} ${tagFromKw.join(' ')}`,
+        deskripsi: '',
+        gabungan: ''
       });
     }
 
@@ -553,7 +714,7 @@ function generate() {
     } else {
       tampilkanHasil();
       progressBar.value = 100;
-      statusText.textContent = `Selesai! ${dipilih.length} kalimat berhasil dibuat.`;
+      statusText.textContent = `Selesai! ${dipilih.length} kalimat berhasil dibuat. Lanjut ke langkah 6 untuk menggabungkan dengan deskripsi iklan (opsional).`;
       setTimeout(() => { progressBar.style.display = 'none'; }, 1500);
     }
   }
@@ -561,14 +722,37 @@ function generate() {
   prosesBatch();
 }
 
+/* ====== Gabungkan kalimat hasil generate dengan naskah/kalimat iklan ====== */
+function gabungkan() {
+  if (hasilData.length === 0) {
+    alert('Belum ada hasil generate. Klik "🚀 Generate" dulu di langkah 5.');
+    return;
+  }
+  const body = document.getElementById('kalimatIklan').value.trim();
+  if (!body) {
+    alert('Isi dulu kolom "Kalimat Iklan (Deskripsi)" yang mau digabungkan!');
+    return;
+  }
+  hasilData.forEach(d => {
+    d.deskripsi = body;
+    d.gabungan = `${d.kalimat}\n\n${body}\n\n${d.keyword}\n\n${d.hashtag}`;
+  });
+  tampilkanHasil();
+  alert(`Berhasil menggabungkan ${hasilData.length} kalimat dengan deskripsi iklan.`);
+}
+
 function tampilkanHasil() {
-  const teks = hasilData.map(d => `${d.kalimat}\n${d.keyword}\n${d.hashtag}`).join('\n\n');
+  const teks = hasilData.map(d =>
+    d.gabungan ? d.gabungan : `${d.kalimat}\n${d.keyword}\n${d.hashtag}`
+  ).join('\n\n=======================================\n\n');
   document.getElementById('hasil').value = teks;
 }
 
 function unduhTxt() {
   if (hasilData.length === 0) { alert('Belum ada hasil, generate dulu!'); return; }
-  const teks = hasilData.map(d => `${d.kalimat}\n${d.keyword}\n${d.hashtag}`).join('\n\n');
+  const teks = hasilData.map(d =>
+    d.gabungan ? d.gabungan : `${d.kalimat}\n${d.keyword}\n${d.hashtag}`
+  ).join('\n\n=======================================\n\n');
   const blob = new Blob([teks], { type: 'text/plain' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
@@ -576,19 +760,21 @@ function unduhTxt() {
   link.click();
 }
 
+function csvEscape(text) {
+  return `"${String(text == null ? '' : text).replace(/"/g,'""')}"`;
+}
+
 function unduhExcel() {
   if (hasilData.length === 0) { alert('Belum ada hasil, generate dulu!'); return; }
-  let csv = 'Kalimat,Keyword,Hashtag\n';
-  hasilData.forEach(d => {
-    const kalimat = `"${d.kalimat.replace(/"/g,'""')}"`;
-    const keyword = `"${d.keyword.replace(/"/g,'""')}"`;
-    const hashtag = `"${d.hashtag.replace(/"/g,'""')}"`;
-    csv += `${kalimat},${keyword},${hashtag}\n`;
+  let csv = 'No.,JUDUL,DESKRIPSI,TAGS / LABEL,HASTAG\n';
+  hasilData.forEach((d, i) => {
+    const no = i + 1;
+    csv += `${no},${csvEscape(d.kalimat)},${csvEscape(d.deskripsi)},${csvEscape(d.keyword)},${csvEscape(d.hashtag)}\n`;
   });
   const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = 'hasil_promo.csv';
+  link.download = 'hasil_iklan.csv';
   link.click();
 }
 
