@@ -54,6 +54,34 @@
   }
   .card > p.desc{margin:2px 0 14px 36px; color:var(--muted); font-size:13px;}
 
+  /* ===== Tab Navigation ===== */
+  .tab-bar{
+    display:flex; gap:8px; overflow-x:auto; padding:4px 2px 10px; margin-bottom:18px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .tab-bar::-webkit-scrollbar{height:6px;}
+  .tab-bar::-webkit-scrollbar-thumb{background:#cbd5e1; border-radius:4px;}
+  .tab-btn{
+    flex:0 0 auto; background:#fff; color:var(--muted); border:1.5px solid var(--border);
+    border-radius:999px; padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer;
+    white-space:nowrap; box-shadow:none; transition:all .15s;
+  }
+  .tab-btn:hover{border-color:var(--primary); color:var(--primary); filter:none;}
+  .tab-btn.active{background:var(--primary); border-color:var(--primary); color:#fff;}
+
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block; animation:ilkanFadeIn .25s ease;}
+  @keyframes ilkanFadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .tab-nav{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    margin-top:22px; padding-top:16px; border-top:1px dashed var(--border);
+  }
+  .tab-progress{font-size:12.5px; color:var(--muted); font-weight:700;}
+  .btn-prev{background:#94a3b8;}
+  .btn-next{background:var(--primary);}
+  .tab-done{color:var(--accent-green); font-weight:700; font-size:13.5px;}
+
   label{font-weight:600; font-size:13.5px; display:block; margin:14px 0 6px; color:var(--text);}
   label.first{margin-top:0;}
   .hint{font-weight:400; color:var(--muted); font-size:12.3px;}
@@ -144,19 +172,32 @@
 <details class="guide" open>
   <summary>📘 Cara Penggunaan (klik untuk buka/tutup)</summary>
   <ol>
+    <li>Tampilan sekarang berbentuk <b>tab (Tahap 1–8)</b> — klik tab di atas atau tombol <b>Selanjutnya ›</b> / <b>‹ Sebelumnya</b> di tiap tahap supaya tidak ada langkah yang terlewat.</li>
     <li>Isi <b>Nama Produk</b> sesuai barang yang mau dipromosikan.</li>
     <li>Atur <b>Maks Karakter Bank Kata</b> (default 45) supaya kalimat pembuka/promo yang dihasilkan tidak terlalu panjang.</li>
     <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris satu pilihan. Klik <b>✨ Rekomendasi</b> untuk menambah 5 variasi, atau <b>🎯 Generate Otomatis</b> untuk langsung mengisi banyak sekaligus — variasi yang pernah dibuat tidak akan diulang (tersimpan di perangkat ini). Klik <b>↺ Reset Riwayat</b> bila variasi mulai menipis.</li>
     <li>Pilih wilayah dari dropdown <b>Pilih Kota/Kabupaten</b> (khusus Jabodetabek) — centang kecamatan yang mau dipakai, lalu klik <b>➕ Tambahkan ke Bank Lokasi</b>.</li>
     <li>Isi <b>Nomor HP</b>, atur <b>Jumlah Kalimat</b> dan <b>Jumlah Variasi Lokasi per Baris</b>, lalu klik <b>🚀 Generate</b>.</li>
-    <li>Tempel naskah/deskripsi panjang di kolom <b>Kalimat Iklan (Deskripsi)</b>, lalu klik <b>🔗 Gabungkan</b> — setiap hasil generate akan disisipi deskripsi ini menjadi satu naskah iklan utuh (judul + deskripsi + tags lokasi + hashtag).</li>
+    <li>Di Tahap 6, isi <b>Nama Usaha, Alamat, Link Gmaps, Website</b>, lalu klik <b>🪄 Generate Kalimat Iklan</b> untuk membuat naskah deskripsi otomatis sesuai Nama Produk (boleh diedit manual). Klik <b>🔗 Gabungkan</b> agar naskah ini disisipkan ke setiap hasil di Tahap 5, membentuk satu naskah utuh (judul + deskripsi + tags lokasi + hashtag).</li>
     <li>Download hasil lewat <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b> (kolom: No, Judul, Deskripsi, Tags/Label, Hashtag).</li>
-    <li>Di langkah <b>8. Pembuatan Prompt</b>, isi <b>Kata Perintah</b> dan <b>Kata Finishing</b> untuk membuat daftar prompt (misal untuk AI image generator) dari semua hasil di atas. Klik <b>📊 Download Excel Full</b> untuk 1 file berisi semua baris, atau <b>🗂 Download Per 20 Baris (ZIP)</b> untuk memecah otomatis jadi banyak file Excel (maks 20 baris/file) yang dibungkus dalam 1 ZIP.</li>
+    <li>Di Tahap <b>8. Pembuatan Prompt</b>, isi <b>Kata Perintah</b> dan <b>Kata Finishing</b> untuk membuat daftar prompt (misal untuk AI image generator) dari semua hasil di atas. Klik <b>📊 Download Excel Full</b> untuk 1 file berisi semua baris, atau <b>🗂 Download Per 20 Baris (ZIP)</b> untuk memecah otomatis jadi banyak file Excel (maks 20 baris/file) yang dibungkus dalam 1 ZIP.</li>
   </ol>
 </details>
 
+<div id="tabTop"></div>
+<div class="tab-bar" id="tabBar">
+  <button type="button" class="tab-btn active" id="tabBtn-1" onclick="showTab(1)">1. Produk</button>
+  <button type="button" class="tab-btn" id="tabBtn-2" onclick="showTab(2)">2. Pembuka</button>
+  <button type="button" class="tab-btn" id="tabBtn-3" onclick="showTab(3)">3. Promo</button>
+  <button type="button" class="tab-btn" id="tabBtn-4" onclick="showTab(4)">4. Lokasi</button>
+  <button type="button" class="tab-btn" id="tabBtn-5" onclick="showTab(5)">5. Generate</button>
+  <button type="button" class="tab-btn" id="tabBtn-6" onclick="showTab(6)">6. Kalimat Iklan</button>
+  <button type="button" class="tab-btn" id="tabBtn-7" onclick="showTab(7)">7. Preview</button>
+  <button type="button" class="tab-btn" id="tabBtn-8" onclick="showTab(8)">8. Prompt</button>
+</div>
+
 <!-- 1. PRODUK -->
-<section class="card">
+<section class="card tab-panel active" id="panel-1">
   <h2><span class="step">1</span> Produk &amp; Pengaturan</h2>
   <p class="desc">Nama produk dan batas panjang kalimat pembuka/promo.</p>
 
@@ -172,10 +213,16 @@
       <span class="hint">agar kalimat tidak terlalu panjang saat dipakai di flyer</span>
     </div>
   </div>
+
+  <div class="tab-nav">
+    <span></span>
+    <span class="tab-progress">Langkah 1 dari 8</span>
+    <button type="button" class="btn-next" onclick="showTab(2)">Selanjutnya ›</button>
+  </div>
 </section>
 
 <!-- 2. BANK KATA -->
-<section class="card">
+<section class="card tab-panel" id="panel-2">
   <h2><span class="step">2</span> Bank Kata Pembuka</h2>
   <p class="desc">Satu baris = satu pilihan kalimat pembuka.</p>
   <textarea id="pembuka" oninput="hitungMaksKombinasi()">Susu Kambing Murni, Segar & Tanpa Bau Prengus
@@ -204,9 +251,15 @@ Rasa Creamy, Bikin Nagih</textarea>
     <input type="number" class="num-inline" id="jumlahOtomatisPembuka" value="50" min="5" max="300">
     <button class="btn-generate" onclick="generateOtomatis('pembuka')">🎯 Generate Otomatis</button>
   </div>
+
+  <div class="tab-nav">
+    <button type="button" class="btn-prev" onclick="showTab(1)">‹ Sebelumnya</button>
+    <span class="tab-progress">Langkah 2 dari 8</span>
+    <button type="button" class="btn-next" onclick="showTab(3)">Selanjutnya ›</button>
+  </div>
 </section>
 
-<section class="card">
+<section class="card tab-panel" id="panel-3">
   <h2><span class="step">3</span> Bank Kata Promo</h2>
   <p class="desc">Satu baris = satu pilihan kalimat promo. Persentase diskon/cashback otomatis dibatasi maks 15%.</p>
   <textarea id="promo" oninput="hitungMaksKombinasi()">Gratis Ongkir
@@ -235,10 +288,16 @@ Beli Banyak Lebih Hemat</textarea>
     <input type="number" class="num-inline" id="jumlahOtomatisPromo" value="50" min="5" max="300">
     <button class="btn-generate" onclick="generateOtomatis('promo')">🎯 Generate Otomatis</button>
   </div>
+
+  <div class="tab-nav">
+    <button type="button" class="btn-prev" onclick="showTab(2)">‹ Sebelumnya</button>
+    <span class="tab-progress">Langkah 3 dari 8</span>
+    <button type="button" class="btn-next" onclick="showTab(4)">Selanjutnya ›</button>
+  </div>
 </section>
 
 <!-- 4. LOKASI -->
-<section class="card">
+<section class="card tab-panel" id="panel-4">
   <h2><span class="step">4</span> Lokasi</h2>
   <p class="desc">Pilih kota Jabodetabek untuk memunculkan checklist kecamatan, atau tulis manual di Bank Lokasi.</p>
 
@@ -269,10 +328,16 @@ Pancoran Mas Kota Depok
 Sawangan Kota Depok
 Sukmajaya Kota Depok
 Tapos Kota Depok</textarea>
+
+  <div class="tab-nav">
+    <button type="button" class="btn-prev" onclick="showTab(3)">‹ Sebelumnya</button>
+    <span class="tab-progress">Langkah 4 dari 8</span>
+    <button type="button" class="btn-next" onclick="showTab(5)">Selanjutnya ›</button>
+  </div>
 </section>
 
 <!-- 5. GENERATE -->
-<section class="card">
+<section class="card tab-panel" id="panel-5">
   <h2><span class="step">5</span> Kontak &amp; Generate</h2>
   <p class="desc">Data kontak dan jumlah kalimat yang ingin dibuat.</p>
 
@@ -297,23 +362,57 @@ Tapos Kota Depok</textarea>
 
   <progress id="progressBar" value="0" max="100" style="display:none;"></progress>
   <div id="statusText"></div>
+
+  <div class="tab-nav">
+    <button type="button" class="btn-prev" onclick="showTab(4)">‹ Sebelumnya</button>
+    <span class="tab-progress">Langkah 5 dari 8</span>
+    <button type="button" class="btn-next" onclick="showTab(6)">Selanjutnya ›</button>
+  </div>
 </section>
 
 <!-- 6. GABUNGKAN -->
-<section class="card">
+<section class="card tab-panel" id="panel-6">
   <h2><span class="step">6</span> Kalimat Iklan (Deskripsi)</h2>
-  <p class="desc">Tempel naskah/deskripsi iklan lengkap di sini (misalnya isi promosi jasa/produk). Klik <b>Gabungkan</b> untuk menyisipkannya ke setiap hasil generate di atas, sehingga terbentuk satu naskah utuh: <i>Judul → Deskripsi → Tags Lokasi → Hashtag</i>.</p>
-  <textarea id="kalimatIklan" placeholder="Contoh: Mewujudkan tasyakuran aqiqah yang khidmat, lezat, dan sesuai syariat kini tidak perlu lagi membuat Bunda dan Ayah pusing...
+  <p class="desc">Buat naskah deskripsi otomatis sesuai Nama Produk, atau tempel naskah sendiri. Klik <b>Gabungkan</b> untuk menyisipkannya ke setiap hasil generate di atas, sehingga terbentuk satu naskah utuh: <i>Judul → Deskripsi → Tags Lokasi → Hashtag</i>.</p>
 
-(Tempel di sini seluruh paragraf deskripsi/body iklan Anda. Teks ini akan sama untuk semua baris hasil, hanya judul, tags lokasi, dan hashtag saja yang otomatis berbeda-beda per baris.)"></textarea>
+  <label class="first">Nama Usaha / Brand</label>
+  <input type="text" id="namaUsaha" value="Susu Juragan">
+
+  <div class="row">
+    <div>
+      <label>Alamat Lengkap</label>
+      <input type="text" id="alamatUsaha" value="Jl. H. Solichin No.03, Bakti Jaya, Kec. Sukmajaya, Kota Depok, Jawa Barat 16418">
+    </div>
+    <div>
+      <label>Link Google Maps <span class="hint">(opsional)</span></label>
+      <input type="text" id="linkGmaps" value="https://share.google/vijTRbeWSA8K483Gb">
+    </div>
+  </div>
+  <label>Website <span class="hint">(opsional)</span></label>
+  <input type="text" id="websiteUsaha" value="https://susujuragan.com">
+
+  <div class="btn-row">
+    <button class="btn-ai" onclick="generateKalimatIklan()">🪄 Generate Kalimat Iklan</button>
+  </div>
+
+  <label>Kalimat Iklan (Deskripsi)</label>
+  <textarea id="kalimatIklan" placeholder="Klik &quot;🪄 Generate Kalimat Iklan&quot; di atas untuk membuat naskah otomatis, atau tempel naskah Anda sendiri di sini.
+
+Teks ini akan sama untuk semua baris hasil, hanya judul, tags lokasi, dan hashtag saja yang otomatis berbeda-beda per baris."></textarea>
   <div class="btn-row">
     <button class="btn-gabung" onclick="gabungkan()">🔗 Gabungkan</button>
   </div>
-  <div class="badge-note">⚠️ Klik <b>🚀 Generate</b> dulu sebelum menggabungkan. Kalau Generate diulang, klik Gabungkan lagi agar deskripsi tergabung ulang.</div>
+  <div class="badge-note">⚠️ Klik <b>🚀 Generate</b> dulu di Langkah 5 sebelum menggabungkan. Kalau Generate diulang, klik Gabungkan lagi agar deskripsi tergabung ulang.</div>
+
+  <div class="tab-nav">
+    <button type="button" class="btn-prev" onclick="showTab(5)">‹ Sebelumnya</button>
+    <span class="tab-progress">Langkah 6 dari 8</span>
+    <button type="button" class="btn-next" onclick="showTab(7)">Selanjutnya ›</button>
+  </div>
 </section>
 
 <!-- 7. HASIL -->
-<section class="card">
+<section class="card tab-panel" id="panel-7">
   <h2><span class="step">7</span> Preview &amp; Download</h2>
   <p class="desc">Hasil akhir siap dicopy, atau diunduh sebagai .txt / Excel.</p>
 
@@ -323,10 +422,16 @@ Tapos Kota Depok</textarea>
     <button class="btn-download" onclick="unduhTxt()">⬇ Download .txt</button>
     <button class="btn-excel" onclick="unduhExcel()">📊 Download Excel (No, Judul, Deskripsi, Tags/Label, Hashtag)</button>
   </div>
+
+  <div class="tab-nav">
+    <button type="button" class="btn-prev" onclick="showTab(6)">‹ Sebelumnya</button>
+    <span class="tab-progress">Langkah 7 dari 8</span>
+    <button type="button" class="btn-next" onclick="showTab(8)">Selanjutnya ›</button>
+  </div>
 </section>
 
 <!-- 8. PEMBUATAN PROMPT -->
-<section class="card">
+<section class="card tab-panel" id="panel-8">
   <h2><span class="step">8</span> Pembuatan Prompt</h2>
   <p class="desc">Membuat daftar prompt (misalnya untuk AI image generator) dari seluruh hasil Tahap 7. Setiap baris = <b>Kata Perintah + Nama File + Kata Finishing</b>.</p>
 
@@ -343,6 +448,12 @@ Tapos Kota Depok</textarea>
     <button class="btn-gabung" onclick="unduhPromptPer20()">🗂 Download Per 20 Baris (ZIP Excel)</button>
   </div>
   <div id="statusPrompt" style="font-size:13px; color:var(--muted); margin-top:8px;"></div>
+
+  <div class="tab-nav">
+    <button type="button" class="btn-prev" onclick="showTab(7)">‹ Sebelumnya</button>
+    <span class="tab-done">✅ Tahap terakhir</span>
+    <span></span>
+  </div>
 </section>
 
 <footer>
@@ -356,6 +467,21 @@ let hasilData = [];
 let maksKombinasi = 0;
 let jumlahDiubahManual = false;
 let terakhirPembuka = -1, terakhirPromo = -1;
+const TOTAL_TAB = 8;
+
+/* ====== Navigasi Tab ====== */
+function showTab(n) {
+  if (n < 1) n = 1;
+  if (n > TOTAL_TAB) n = TOTAL_TAB;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('panel-' + n);
+  const btn = document.getElementById('tabBtn-' + n);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+  const top = document.getElementById('tabTop');
+  if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 /* ====== Bank kata kreatif untuk tombol Rekomendasi ====== */
 function fillP(t, produk){ return t.replaceAll('{p}', produk); }
@@ -745,6 +871,91 @@ function generate() {
   prosesBatch();
 }
 
+/* ====== Tahap 6: Generate Kalimat Iklan (Deskripsi) otomatis ====== */
+function fillIklan(t, produk, usaha){ return t.replaceAll('{p}', produk).replaceAll('{u}', usaha); }
+
+const iklanHook = [
+  "Menikmati {p} yang berkualitas kini semakin mudah.",
+  "Mencari {p} terbaik untuk kebutuhan Anda kini tidak perlu bingung lagi.",
+  "Kebutuhan akan {p} berkualitas kini bisa terpenuhi dengan mudah.",
+  "Ingin mendapatkan {p} terbaik tanpa ribet? Kini semuanya jadi lebih mudah.",
+  "Memenuhi kebutuhan akan {p} berkualitas kini tak lagi jadi hal yang sulit."
+];
+const iklanIntroBody = [
+  "{u} hadir sebagai solusi {p} terpercaya yang berkomitmen memberikan kualitas terbaik untuk kebutuhan Anda dan keluarga.",
+  "{u} hadir untuk menjawab kebutuhan Anda akan {p} pilihan, dengan kualitas terjamin dan pelayanan yang mengutamakan kepuasan pelanggan.",
+  "{u} siap menjadi pilihan utama Anda untuk {p} berkualitas, dengan proses yang terpercaya dari awal hingga sampai ke tangan Anda.",
+  "{u} berkomitmen menghadirkan {p} terbaik yang bisa diandalkan setiap hari, kapan pun Anda membutuhkannya."
+];
+const iklanTrustRole = [
+  "penyedia {p} terpercaya", "produsen {p} pilihan", "penyedia jasa {p} amanah", "distributor {p} tepercaya"
+];
+const iklanPromoLine = [
+  "Itulah mengapa kami menawarkan promo harga khusus, harga jauh lebih terjangkau dibandingkan harga di pasaran, tanpa mengurangi kualitas sedikit pun. Ini adalah komitmen kami untuk menjaga kepercayaan Anda.",
+  "Itulah mengapa kami selalu transparan dalam setiap transaksi dan menjaga kepercayaan pelanggan sebagai prioritas utama kami. Ini adalah komitmen kami untuk terus memberikan pelayanan terbaik.",
+  "Itulah mengapa kami menghadirkan harga bersahabat dengan kualitas yang tidak perlu diragukan lagi. Ini adalah bentuk komitmen kami untuk selalu mengutamakan kepuasan Anda."
+];
+const iklanProsesPara = [
+  "Kami memastikan setiap proses dilakukan secara higienis dan transparan, sehingga Anda bisa mendapatkan {p} dengan kualitas terbaik tanpa perlu ragu. Kami menjamin ukuran/takaran sesuai dengan yang tertera, tanpa dikurangi sedikit pun.",
+  "Kami memastikan setiap tahapan dikerjakan dengan standar tinggi dan pengawasan ketat, sehingga kualitas {p} selalu terjaga dari awal hingga sampai ke tangan Anda. Kami menjamin kejujuran dalam setiap detail, tanpa dikurangi sedikit pun.",
+  "Kami memastikan seluruh proses berjalan rapi, bersih, dan sesuai standar yang berlaku, sehingga {p} yang Anda terima selalu dalam kondisi terbaik. Kami menjamin keakuratan sesuai yang dijanjikan, tanpa dikurangi sedikit pun."
+];
+const iklanMasalahSolusi = [
+  "Masalah kualitas sering menjadi kendala dalam memilih {p}. Namun, di {u}, kami menyajikan {p} pilihan dengan standar terbaik, diproses dengan teliti agar hasil akhirnya maksimal dan memuaskan. Kualitas kami setara dengan produk {p} premium, terutama jika Anda memilih paket eksklusif kami yang dikemas khusus untuk kebutuhan spesial maupun oleh-oleh.",
+  "Masalah harga dan kualitas yang tidak sebanding sering menjadi kendala saat memilih {p}. Namun, di {u}, kami menyajikan {p} pilihan melalui seleksi ketat agar hanya yang terbaik sampai ke tangan Anda. Kualitas kami setara dengan produk {p} premium, terutama jika Anda memilih paket eksklusif kami yang dikemas khusus untuk kebutuhan spesial maupun oleh-oleh.",
+  "Masalah kepercayaan sering menjadi kendala saat memilih {p} secara online. Namun, di {u}, kami menyajikan {p} pilihan dengan proses yang jujur dan terbuka. Kualitas kami setara dengan produk {p} premium, terutama jika Anda memilih paket eksklusif kami yang dikemas khusus untuk kebutuhan spesial maupun oleh-oleh."
+];
+const iklanKeywordTemplate = [
+  "{p} murah", "{p} berkualitas", "Harga {p} terbaik", "Jual {p} siap pakai", "{p} kemasan praktis",
+  "Jual {p} terdekat", "{p} original", "{p} bersertifikat", "{p} untuk kebutuhan sehari-hari",
+  "{p} pilihan keluarga", "{p} terpercaya", "{p} amanah", "Beli {p} online", "{p} pengiriman cepat",
+  "{p} kualitas premium"
+];
+const iklanClosing = [
+  "{p} berkualitas dikenal mampu memberi manfaat maksimal untuk kebutuhan Anda sehari-hari. {u} hadir untuk memberikan kemudahan mendapatkan {p} terbaik kapan saja Anda butuhkan.",
+  "{p} yang tepat bisa membuat aktivitas sehari-hari jadi lebih nyaman dan berkualitas. {u} hadir untuk memastikan kebutuhan Anda akan {p} selalu terpenuhi dengan baik.",
+  "Memilih {p} yang tepat adalah langkah penting untuk hasil yang maksimal. {u} hadir sebagai mitra terpercaya untuk semua kebutuhan {p} Anda."
+];
+
+function generateKalimatIklan() {
+  const produk = document.getElementById('namaProduk').value.trim() || 'Produk';
+  const usahaInput = document.getElementById('namaUsaha').value.trim();
+  const usaha = usahaInput || produk;
+  const alamat = document.getElementById('alamatUsaha').value.trim();
+  const gmaps = document.getElementById('linkGmaps').value.trim();
+  const website = document.getElementById('websiteUsaha').value.trim();
+  const nomor = document.getElementById('nomor').value.trim();
+
+  const paraA = fillIklan(pick(iklanHook), produk, usaha) + ' ' + fillIklan(pick(iklanIntroBody), produk, usaha);
+  const paraB = `Sebagai ${fillIklan(pick(iklanTrustRole), produk, usaha)} yang amanah dan terpercaya, kami memahami bahwa kepercayaan adalah segalanya. ${fillIklan(pick(iklanPromoLine), produk, usaha)}`;
+  const paraC = `Kenapa Harus ${usaha}?\n${fillIklan(pick(iklanProsesPara), produk, usaha)}`;
+  const paraD = fillIklan(pick(iklanMasalahSolusi), produk, usaha);
+
+  const kwPicks = acakAmbil(iklanKeywordTemplate, Math.min(10, iklanKeywordTemplate.length));
+  const paraE = kwPicks.map(t => fillIklan(t, produk, usaha)).join(', ');
+
+  const paraF = `${usaha} kami memiliki kelebihan, di antaranya:\n` +
+`1. Terjangkau: ${usaha} menawarkan harga yang terjangkau\n` +
+`2. Praktis: Anda bisa menerima ${produk} tanpa harus repot\n` +
+`3. Mudah memesan: Anda bisa memesan melalui telepon atau WhatsApp\n` +
+`4. Jaminan kualitas: Anda bisa mendapatkan jaminan ${produk} sesuai standar yang dijanjikan\n` +
+`5. Konsultasi: Anda bisa mendapatkan konsultasi untuk memilih paket sesuai kebutuhan\n` +
+`6. Higienis & Terpercaya: Proses dilakukan secara bersih dan terjaga kualitasnya\n` +
+`7. Hemat waktu: Anda bisa menikmati manfaat ${produk} tanpa harus repot mengurusnya sendiri`;
+
+  const paraG = fillIklan(pick(iklanClosing), produk, usaha);
+
+  const kontakLines = [`Informasi Pemesanan Hubungi:`, usaha.toUpperCase()];
+  if (alamat) kontakLines.push(alamat);
+  if (gmaps) kontakLines.push(`Gmaps: ${gmaps}`);
+  if (website) kontakLines.push(`Website: ${website}`);
+  if (nomor) kontakLines.push(`WA: ${nomor}`);
+  const paraKontak = kontakLines.join('\n');
+
+  const hasilAkhir = [paraA, paraB, paraC, paraD, paraE, paraF, paraG, paraKontak].join('\n\n');
+  document.getElementById('kalimatIklan').value = hasilAkhir;
+}
+
 /* ====== Gabungkan kalimat hasil generate dengan naskah/kalimat iklan ====== */
 function gabungkan() {
   if (hasilData.length === 0) {
@@ -908,6 +1119,7 @@ async function unduhPromptPer20() {
 window.onload = function() {
   populateKotaDropdown();
   hitungMaksKombinasi();
+  showTab(1);
 };
 </script>
 </body>
