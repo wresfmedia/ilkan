@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ILkan - Sasar Para Pembeli</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --primary:#0284C7;
@@ -760,22 +761,40 @@ function unduhTxt() {
   link.click();
 }
 
-function csvEscape(text) {
-  return `"${String(text == null ? '' : text).replace(/"/g,'""')}"`;
-}
-
 function unduhExcel() {
   if (hasilData.length === 0) { alert('Belum ada hasil, generate dulu!'); return; }
-  let csv = 'No.,JUDUL,DESKRIPSI,TAGS / LABEL,HASTAG\n';
+  if (typeof XLSX === 'undefined') {
+    alert('Modul Excel belum termuat (butuh koneksi internet saat membuka file ini). Coba refresh halaman lalu ulangi, atau gunakan "⬇ Download .txt" sebagai alternatif.');
+    return;
+  }
+
+  const rows = [['No.', 'JUDUL', 'DESKRIPSI', 'TAGS / LABEL', 'HASTAG']];
   hasilData.forEach((d, i) => {
-    const no = i + 1;
-    csv += `${no},${csvEscape(d.kalimat)},${csvEscape(d.deskripsi)},${csvEscape(d.keyword)},${csvEscape(d.hashtag)}\n`;
+    rows.push([i + 1, d.kalimat, d.deskripsi || '', d.keyword, d.hashtag]);
   });
-  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'hasil_iklan.csv';
-  link.click();
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [
+    { wch: 5 },
+    { wch: 45 },
+    { wch: 60 },
+    { wch: 55 },
+    { wch: 55 }
+  ];
+  // aktifkan wrap text supaya paragraf deskripsi yang panjang tetap rapi terbaca per sel
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  for (let R = range.s.r; R <= range.e.r; R++) {
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const addr = XLSX.utils.encode_cell({ r: R, c: C });
+      if (ws[addr]) {
+        ws[addr].s = { alignment: { wrapText: true, vertical: 'top' } };
+      }
+    }
+  }
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Hasil Iklan');
+  XLSX.writeFile(wb, 'hasil_iklan.xlsx');
 }
 
 window.onload = function() {
