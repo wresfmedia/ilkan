@@ -770,7 +770,10 @@ function unduhExcel() {
 
   const rows = [['No.', 'JUDUL', 'DESKRIPSI', 'TAGS / LABEL', 'HASTAG']];
   hasilData.forEach((d, i) => {
-    rows.push([i + 1, d.kalimat, d.deskripsi || '', d.keyword, d.hashtag]);
+    const deskripsiLengkap = d.gabungan
+      ? d.gabungan
+      : `${d.kalimat}\n\n${d.deskripsi || ''}\n\n${d.keyword}\n\n${d.hashtag}`.replace(/\n{3,}/g, '\n\n');
+    rows.push([i + 1, d.kalimat, deskripsiLengkap, d.keyword, d.hashtag]);
   });
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
