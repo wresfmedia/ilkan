@@ -836,7 +836,8 @@ function buatDataPrompt() {
   return hasilData.map((d, i) => {
     const no = i + 1;
     const namaFile = `${no}. ${d.kalimat}`;
-    const potongan = [kataPerintah, namaFile, kataFinishing].filter(x => x);
+    // PROMPT tidak memakai nomor urut, cukup judul kalimatnya saja
+    const potongan = [kataPerintah, d.kalimat, kataFinishing].filter(x => x);
     const prompt = potongan.join(' ').replace(/\s+/g, ' ').trim();
     return { no, prompt, namaFile };
   });
