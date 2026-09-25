@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ILkan - Sasar Para Pembeli</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root{
     --primary:#0284C7;
@@ -150,6 +151,7 @@
     <li>Isi <b>Nomor HP</b>, atur <b>Jumlah Kalimat</b> dan <b>Jumlah Variasi Lokasi per Baris</b>, lalu klik <b>🚀 Generate</b>.</li>
     <li>Tempel naskah/deskripsi panjang di kolom <b>Kalimat Iklan (Deskripsi)</b>, lalu klik <b>🔗 Gabungkan</b> — setiap hasil generate akan disisipi deskripsi ini menjadi satu naskah iklan utuh (judul + deskripsi + tags lokasi + hashtag).</li>
     <li>Download hasil lewat <b>⬇ Download .txt</b> atau <b>📊 Download Excel</b> (kolom: No, Judul, Deskripsi, Tags/Label, Hashtag).</li>
+    <li>Di langkah <b>8. Pembuatan Prompt</b>, isi <b>Kata Perintah</b> dan <b>Kata Finishing</b> untuk membuat daftar prompt (misal untuk AI image generator) dari semua hasil di atas. Klik <b>📊 Download Excel Full</b> untuk 1 file berisi semua baris, atau <b>🗂 Download Per 20 Baris (ZIP)</b> untuk memecah otomatis jadi banyak file Excel (maks 20 baris/file) yang dibungkus dalam 1 ZIP.</li>
   </ol>
 </details>
 
@@ -321,6 +323,26 @@ Tapos Kota Depok</textarea>
     <button class="btn-download" onclick="unduhTxt()">⬇ Download .txt</button>
     <button class="btn-excel" onclick="unduhExcel()">📊 Download Excel (No, Judul, Deskripsi, Tags/Label, Hashtag)</button>
   </div>
+</section>
+
+<!-- 8. PEMBUATAN PROMPT -->
+<section class="card">
+  <h2><span class="step">8</span> Pembuatan Prompt</h2>
+  <p class="desc">Membuat daftar prompt (misalnya untuk AI image generator) dari seluruh hasil Tahap 7. Setiap baris = <b>Kata Perintah + Nama File + Kata Finishing</b>.</p>
+
+  <label class="first">Kata Perintah</label>
+  <input type="text" id="kataPerintah" value="Buatkan gambar produk promosi dengan tema:">
+
+  <label>Kata Finishing</label>
+  <input type="text" id="kataFinishing" value=", gaya fotografi produk profesional, pencahayaan studio, latar belakang bersih, resolusi tinggi, rasio 1:1">
+
+  <div id="promptInfo" class="hint" style="margin-top:8px; display:block;">Data prompt akan dibuat dari hasil Tahap 7 (klik 🚀 Generate dulu di langkah 5 kalau belum ada hasil).</div>
+
+  <div class="btn-row">
+    <button class="btn-excel" onclick="unduhPromptExcelFull()">📊 Download Excel Full</button>
+    <button class="btn-gabung" onclick="unduhPromptPer20()">🗂 Download Per 20 Baris (ZIP Excel)</button>
+  </div>
+  <div id="statusPrompt" style="font-size:13px; color:var(--muted); margin-top:8px;"></div>
 </section>
 
 <footer>
@@ -761,6 +783,20 @@ function unduhTxt() {
   link.click();
 }
 
+/* aktifkan wrap text supaya paragraf panjang tetap rapi terbaca per sel */
+function terapkanWrapText(ws) {
+  if (!ws['!ref']) return;
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  for (let R = range.s.r; R <= range.e.r; R++) {
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const addr = XLSX.utils.encode_cell({ r: R, c: C });
+      if (ws[addr]) {
+        ws[addr].s = { alignment: { wrapText: true, vertical: 'top' } };
+      }
+    }
+  }
+}
+
 function unduhExcel() {
   if (hasilData.length === 0) { alert('Belum ada hasil, generate dulu!'); return; }
   if (typeof XLSX === 'undefined') {
@@ -784,20 +820,88 @@ function unduhExcel() {
     { wch: 55 },
     { wch: 55 }
   ];
-  // aktifkan wrap text supaya paragraf deskripsi yang panjang tetap rapi terbaca per sel
-  const range = XLSX.utils.decode_range(ws['!ref']);
-  for (let R = range.s.r; R <= range.e.r; R++) {
-    for (let C = range.s.c; C <= range.e.c; C++) {
-      const addr = XLSX.utils.encode_cell({ r: R, c: C });
-      if (ws[addr]) {
-        ws[addr].s = { alignment: { wrapText: true, vertical: 'top' } };
-      }
-    }
-  }
+  terapkanWrapText(ws);
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Hasil Iklan');
   XLSX.writeFile(wb, 'hasil_iklan.xlsx');
+}
+
+/* ====== Tahap 8: Pembuatan Prompt ====== */
+function buatDataPrompt() {
+  if (hasilData.length === 0) return null;
+  const kataPerintah = document.getElementById('kataPerintah').value.trim();
+  const kataFinishing = document.getElementById('kataFinishing').value.trim();
+
+  return hasilData.map((d, i) => {
+    const no = i + 1;
+    const namaFile = `${no}. ${d.kalimat}`;
+    const potongan = [kataPerintah, namaFile, kataFinishing].filter(x => x);
+    const prompt = potongan.join(' ').replace(/\s+/g, ' ').trim();
+    return { no, prompt, namaFile };
+  });
+}
+
+function unduhPromptExcelFull() {
+  const data = buatDataPrompt();
+  if (!data) { alert('Belum ada hasil dari Tahap 7. Klik "🚀 Generate" dulu di langkah 5.'); return; }
+  if (typeof XLSX === 'undefined') {
+    alert('Modul Excel belum termuat (butuh koneksi internet saat membuka file ini). Coba refresh halaman lalu ulangi.');
+    return;
+  }
+
+  const rows = [['NO.', 'PROMPT', 'NAMA FILE']];
+  data.forEach(d => rows.push([d.no, d.prompt, d.namaFile]));
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{ wch: 5 }, { wch: 95 }, { wch: 60 }];
+  terapkanWrapText(ws);
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Prompt');
+  XLSX.writeFile(wb, 'hasil_prompt.xlsx');
+
+  document.getElementById('statusPrompt').textContent = `Selesai! 1 file Excel berisi ${data.length} baris prompt sudah diunduh.`;
+}
+
+async function unduhPromptPer20() {
+  const data = buatDataPrompt();
+  if (!data) { alert('Belum ada hasil dari Tahap 7. Klik "🚀 Generate" dulu di langkah 5.'); return; }
+  if (typeof XLSX === 'undefined' || typeof JSZip === 'undefined') {
+    alert('Modul Excel/ZIP belum termuat (butuh koneksi internet saat membuka file ini). Coba refresh halaman lalu ulangi.');
+    return;
+  }
+
+  const perFile = 20;
+  const totalFile = Math.ceil(data.length / perFile);
+  const statusEl = document.getElementById('statusPrompt');
+  statusEl.textContent = `Menyiapkan ${totalFile} file Excel (maks ${perFile} baris/file)...`;
+
+  const zip = new JSZip();
+  for (let f = 0; f < totalFile; f++) {
+    const chunk = data.slice(f * perFile, (f + 1) * perFile);
+    const rows = [['NO.', 'PROMPT', 'NAMA FILE']];
+    chunk.forEach(d => rows.push([d.no, d.prompt, d.namaFile]));
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch: 5 }, { wch: 95 }, { wch: 60 }];
+    terapkanWrapText(ws);
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Prompt');
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
+    const namaBagian = `prompt_bagian_${String(f + 1).padStart(2, '0')}_dari_${totalFile}.xlsx`;
+    zip.file(namaBagian, wbout);
+  }
+
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `hasil_prompt_per${perFile}baris_${totalFile}file.zip`;
+  link.click();
+
+  statusEl.textContent = `Selesai! ${data.length} baris dipecah jadi ${totalFile} file Excel (maks ${perFile} baris/file), dibungkus dalam 1 file ZIP.`;
 }
 
 window.onload = function() {
