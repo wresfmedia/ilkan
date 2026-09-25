@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Generator Kalimat Promo</title>
+<title>ILkan - Sasar Para Pembeli</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 850px; margin: 20px auto; padding: 10px; }
   textarea { width: 100%; height: 100px; font-family: monospace; margin-bottom: 5px; box-sizing: border-box; }
@@ -28,13 +28,23 @@
 </head>
 <body>
 
-<h2>Generator Kalimat Promo</h2>
+<div style="display:flex; align-items:center; gap:14px; margin-bottom:2px;">
+  <svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo ILkan">
+    <rect x="0" y="0" width="52" height="52" rx="12" fill="#38BDF8"/>
+    <rect x="2" y="2" width="48" height="48" rx="10" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+    <text x="26" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFFFFF" text-anchor="middle">IL</text>
+  </svg>
+  <span style="font-size:32px; font-weight:bold; color:#000000; font-family:Arial, sans-serif; letter-spacing:.3px;">IL<span style="color:#0284C7;">kan</span></span>
+</div>
+<p style="margin:0 0 6px 66px; color:#0284C7; font-style:italic; font-family:Arial, sans-serif; font-size:15px;">Sasar Para Pembeli..</p>
+<p style="margin:0 0 18px; color:#555; font-family:Arial, sans-serif; font-size:14px;">Generator Kalimat Promo</p>
 
 <details open>
   <summary>📘 Cara Penggunaan (klik untuk buka/tutup)</summary>
   <ol>
     <li>Isi <b>Nama Produk</b> sesuai barang yang mau dipromosikan.</li>
-    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris satu pilihan. Boleh pakai tombol <b>✨ Rekomendasi</b>.</li>
+    <li>Atur <b>Maks Karakter Bank Kata</b> (default 45) supaya kalimat pembuka/promo yang dihasilkan tidak terlalu panjang dan memenuhi halaman saat dipakai di flyer.</li>
+    <li>Isi <b>Bank Kata Pembuka</b> dan <b>Bank Kata Promo</b>, satu baris satu pilihan. Klik <b>✨ Rekomendasi</b> untuk menambah 5 variasi kreatif, atau <b>🎯 Generate Otomatis</b> untuk langsung mengisi sekaligus sebanyak angka yang diinput (default 50) — variasi yang sudah pernah dibuat sebelumnya (tersimpan di perangkat ini) tidak akan diulang. Kalau variasi mulai menipis, klik <b>↺ Reset Riwayat</b> di sebelahnya untuk mengulang dari awal. Khusus promo, persentase diskon/cashback yang dihasilkan otomatis dibatasi maksimal 15%.</li>
     <li>Pilih wilayah dari dropdown <b>Pilih Kota/Kabupaten</b> (khusus Jabodetabek) — kecamatannya otomatis muncul sebagai checklist, centang yang mau dipakai, klik <b>➕ Tambahkan ke Bank Lokasi</b>.</li>
     <li>Isi <b>Nomor HP</b>. Field <b>Jumlah Kalimat</b> otomatis terisi angka maksimal kombinasi, tapi bisa diubah manual.</li>
     <li>Tentukan <b>Jumlah Variasi Lokasi per Baris</b>.</li>
@@ -45,6 +55,10 @@
 
 <label>Nama Produk</label>
 <input type="text" id="namaProduk" value="Susu Kambing" style="width:100%; box-sizing:border-box;">
+
+<label>Maks Karakter Bank Kata (Pembuka & Promo)</label>
+<input type="number" id="maksKarakter" value="45" min="15" max="150" style="width:100px;">
+<span style="font-size:13px; color:#555;">agar kalimat tidak terlalu panjang saat dipakai di flyer</span>
 
 <label>Bank Kata Pembuka</label>
 <textarea id="pembuka" oninput="hitungMaksKombinasi()">Susu Kambing Murni, Segar & Tanpa Bau Prengus
@@ -68,10 +82,14 @@ Susu Kambing Kualitas Premium
 Stok Terbatas, Buruan Order
 Rasa Creamy, Bikin Nagih</textarea>
 <button class="btn-ai" onclick="rekomendasi('pembuka')">✨ Rekomendasi</button>
+<button class="btn-kecil" onclick="resetRiwayat('pembuka')">↺ Reset Riwayat</button>
+<br>
+<input type="number" id="jumlahOtomatisPembuka" value="50" min="5" max="300" style="width:80px;">
+<button class="btn-generate" onclick="generateOtomatis('pembuka')">🎯 Generate Otomatis</button>
 
 <label>Bank Kata Promo</label>
 <textarea id="promo" oninput="hitungMaksKombinasi()">Gratis Ongkir
-Diskon 20%
+Diskon 15%
 Beli 2 Gratis 1
 Cashback 15%
 Bonus Botol Kedua
@@ -85,12 +103,16 @@ Diskon Member Baru
 Beli 3 Harga 2
 Cashback Untuk Pembelian Kedua
 Promo Payday Spesial
-Diskon Ongkir 50%
+Diskon Ongkir 15%
 Bonus Merchandise Menarik
 Harga Coret Khusus Hari Ini
 Diskon Ekstra Weekday
 Beli Banyak Lebih Hemat</textarea>
 <button class="btn-ai" onclick="rekomendasi('promo')">✨ Rekomendasi</button>
+<button class="btn-kecil" onclick="resetRiwayat('promo')">↺ Reset Riwayat</button>
+<br>
+<input type="number" id="jumlahOtomatisPromo" value="50" min="5" max="300" style="width:80px;">
+<button class="btn-generate" onclick="generateOtomatis('promo')">🎯 Generate Otomatis</button>
 
 <label>Pilih Kota/Kabupaten (Jabodetabek)</label>
 <select id="pilihKota" onchange="tampilkanCeklisKecamatan()">
@@ -138,51 +160,198 @@ Tapos Kota Depok</textarea>
 <h3>Preview Hasil:</h3>
 <textarea id="hasil" readonly></textarea>
 
+<footer style="margin-top:30px; padding-top:14px; border-top:1px solid #ddd; font-family:Arial, sans-serif; font-size:13px; color:#555; text-align:center;">
+  ILkan &copy; 2026 - Powered by <a href="https://wied.web.id" target="_blank" rel="noopener" style="color:#0284C7; text-decoration:none; font-weight:bold;">Ishbiruu Media</a>
+</footer>
+
 <script>
 let hasilData = [];
 let maksKombinasi = 0;
 let jumlahDiubahManual = false;
 let terakhirPembuka = -1, terakhirPromo = -1;
 
-const kamusKreatif = {
-  pembuka: [
-    "Lagi Cari Susu Kambing Asli?",
-    "Paket Susu Kambing Siap Kirim",
-    "Susu Kambing Kemasan Praktis",
-    "Solusi Sehat Untuk Keluarga",
-    "Bebas Bau Prengus, Dijamin Enak",
-    "Susu Kambing Pilihan Ahli Gizi",
-    "Diminum Rutin, Badan Makin Fit",
-    "Susu Kambing Kualitas Premium",
-    "Stok Terbatas, Buruan Order",
-    "Rasa Creamy, Bikin Nagih",
-    "Direkomendasikan Ahli Gizi",
-    "Kenapa Harus Ragu Lagi?",
-    "Waktunya Beralih ke Alami!"
-  ],
-  promo: [
-    "Diskon Bulan Ini",
-    "Beli Banyak Lebih Hemat",
-    "Promo Terbatas Minggu Ini",
-    "Free Ongkir Sekota",
-    "Harga Spesial Pelanggan Baru",
-    "Gratis Sample Produk",
-    "Diskon Member Baru",
-    "Beli 3 Harga 2",
-    "Cashback Untuk Pembelian Kedua",
-    "Promo Payday Spesial"
-  ]
-};
+/* ====== Bank kata kreatif untuk tombol Rekomendasi ====== */
+function fillP(t, produk){ return t.replaceAll('{p}', produk); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+const prefixPembuka = [
+  "{p} Murni","{p} Asli","{p} Segar Setiap Hari","{p} Original Tanpa Campuran","{p} Alami 100%",
+  "{p} Kualitas Premium","Kangen {p}?","Cari {p} Asli?","Sudah Tahu {p}?","Penasaran Sama {p}?"
+];
+const suffixPembuka = [
+  "Tanpa Bau Prengus","Tanpa Bahan Kimia","Terjamin Higienis","Kaya Nutrisi Alami","Cocok Untuk Seluruh Keluarga",
+  "Rasa Original & Segar","Terbukti Menyehatkan","Dijamin Halal & Aman","Diproses Secara Higienis",
+  "Bebas Pengawet","Rasa Creamy, Bikin Nagih","Stok Terbatas Tiap Hari","Diminum Rutin, Badan Makin Fit",
+  "Pilihan Ahli Gizi","Aman Untuk Anak & Lansia","Kualitas Terjaga Sampai Tujuan","Segar Layaknya Baru Diperah",
+  "Tanpa Rasa Amis","Diracik Dengan Standar Tinggi","Disukai Dari Anak Hingga Dewasa",
+  "Teksturnya Lembut Di Lidah","Membantu Jaga Daya Tahan Tubuh","Cocok Diminum Pagi & Malam",
+  "Diolah Tanpa Tambahan Gula Buatan","Sudah Dipercaya Ribuan Keluarga","Praktis Dibawa Kemana Saja",
+  "Rasanya Selalu Konsisten"
+];
+const hookPembuka = [
+  "Sehat Itu Sederhana, Mulai Dari Sini","Auto Bugar Tanpa Ribet!","Waktunya Manjain Tubuh Dengan Yang Alami",
+  "Bukan Sekadar Minuman, Ini Kebiasaan Baik","Segar Dari Alam, Nikmat Setiap Saat",
+  "Pilihan Tepat Untuk Hidup Lebih Sehat","Kualitas Nomor Satu, Rasa Bikin Nagih",
+  "Higienis Terjamin, Nutrisi Melimpah","Dari Alam Untuk Keluarga Tercinta","Rasakan Bedanya Sejak Tegukan Pertama",
+  "Sudah Waktunya Hidup Lebih Sehat","Kebiasaan Baik Dimulai Dari Hal Kecil","Alami, Segar, Dan Menyehatkan",
+  "Nikmat Alami Tanpa Bahan Tambahan","Sehat Tak Harus Ribet, Ini Buktinya"
+];
+const tailPembuka = [
+  ", Saatnya Beralih Ke {p}",", Yuk Kenalan Sama {p}",", Cocok Untuk Penggemar {p}",
+  ", Rasakan Bedanya Bersama {p}",", Sudah Waktunya Coba {p}",", Jangan Lewatkan {p} Hari Ini",
+  ", Kenalan Yuk Sama {p}",", Pilihan Tepat Buat Kamu Yang Cari {p}"
+];
+const standalonePembuka = [
+  "Ingin Lebih Sehat? Coba Ini!","Yuk, Ikuti Sunnah Rosul!","Solusi Sehat Untuk Keluarga",
+  "Buruan Order, Stok Terbatas!","Sudah Coba {p} Hari Ini?","Rahasia Sehat Keluarga Sejak Dulu",
+  "Rasa Creamy, Bikin Nagih Setiap Tegukan","{p}, Nutrisi Alami Tanpa Ribet",
+  "Jangan Sampai Kehabisan, Order Sekarang","{p} Favorit Keluarga Indonesia",
+  "Manfaatnya Nyata, Rasanya Juara","Praktis, Sehat, Tanpa Bau Amis",
+  "Satu Tegukan, Sejuta Manfaat","Bukan Sekadar Minuman, Ini Kebiasaan Sehat",
+  "Dari Peternakan Langsung Ke Meja Anda","{p}, Teman Sehat Keluarga Setiap Pagi",
+  "Kenapa Harus {p}? Coba Dulu, Baru Percaya","Sehat Itu Sederhana, Mulai Dari {p}",
+  "{p}, Warisan Sehat Yang Terus Dipercaya","Tubuh Bugar, Berawal Dari Kebiasaan Kecil",
+  "Ada Alasan Kenapa Banyak Yang Kembali Ke {p}","{p}, Pilihan Yang Tidak Pernah Mengecewakan"
+];
+
+const diskonPersen = [5,8,10,12,15];
+const cashbackPersen = [5,8,10,12,15];
+const hematRupiah = [10000,15000,20000,25000,30000,50000];
+const voucherRupiah = [5000,10000,15000,20000,25000];
+const ongkirDiskon = [10,15];
+const rupiahFmt = n => 'Rp' + n.toLocaleString('id-ID');
+
+const standalonePromo = [
+  "Gratis Ongkir Se-Indonesia","Beli 2 Gratis 1","Beli 3 Harga 2","Bonus Botol Kedua",
+  "Bonus Merchandise Menarik","Paket Hemat Keluarga","Bundling Hemat 2 Produk",
+  "Diskon Spesial Akhir Pekan","Diskon Member Baru","Promo Payday Spesial",
+  "Gratis Sample Produk","Harga Coret Khusus Hari Ini","Diskon Ekstra Weekday",
+  "Beli Banyak Lebih Hemat","Promo Terbatas, Buruan Serbu","Kejutan Awal Bulan, Cek Sekarang",
+  "Belanja Sekarang, Untung Berlipat","Gratis Ongkir Tanpa Minimum Belanja",
+  "Checkout Sekarang, Diskon Otomatis Masuk","Kabar Baik: Promo Diperpanjang Hari Ini",
+  "Ada Kejutan Manis Buat Kamu Hari Ini","Yuk, Manjakan Diri Dengan Promo Ini",
+  "Sedikit Hemat, Banyak Untung","Promo Ramah Kantong, Jangan Sampai Terlewat",
+  "Belanja Nyaman, Kantong Tetap Aman","Waktunya Belanja Cerdas, Ini Promonya",
+  "Spesial Buat Kamu Yang Setia Belanja","Kesempatan Baik Datang Sekali, Jangan Ditunda"
+];
+const templatePromoNumeric = [
+  ()=>`Nikmati Diskon ${pick(diskonPersen)}%`,
+  ()=>`Ada Cashback ${pick(cashbackPersen)}% Buat Kamu`,
+  ()=>`Hemat Sampai ${rupiahFmt(pick(hematRupiah))} Hari Ini`,
+  ()=>`Voucher Belanja ${rupiahFmt(pick(voucherRupiah))} Menanti`,
+  ()=>`Ongkir Lebih Ringan, Diskon ${pick(ongkirDiskon)}%`,
+  ()=>`Cashback Spesial Untuk Pembelian Ke-${pick([2,3])}`,
+  ()=>`Diskon ${pick(diskonPersen)}% Khusus {p} Hari Ini`,
+  ()=>`{p} Lagi Diskon ${pick(diskonPersen)}%, Yuk Serbu`,
+  ()=>`Beli ${pick([2,3,4])} {p}, Gratis 1 Buat Kamu`,
+  ()=>`Cashback ${pick(cashbackPersen)}% Setiap Pembelian {p}`,
+  ()=>`Hemat ${rupiahFmt(pick(hematRupiah))} Tiap Beli {p}`,
+  ()=>`Promo {p} Diskon ${pick(diskonPersen)}%, Terbatas`,
+  ()=>`Cuma Hari Ini: Diskon ${pick(diskonPersen)}% Untuk {p}`,
+  ()=>`Buruan, Diskon ${pick(diskonPersen)}% Segera Berakhir`,
+  ()=>`Cashback ${pick(cashbackPersen)}% Khusus Pembeli Pertama`,
+  ()=>`Gratis Ongkir Plus Diskon ${pick(diskonPersen)}% Hari Ini`,
+  ()=>`Voucher ${rupiahFmt(pick(voucherRupiah))} Untuk 100 Pembeli Pertama`,
+  ()=>`Diskon Kilat ${pick(diskonPersen)}%, Jangan Sampai Kehabisan`,
+  ()=>`Kejutan Hari Ini: Cashback ${pick(cashbackPersen)}% Nunggu Kamu`,
+  ()=>`{p} Diskon ${pick(diskonPersen)}%, Sayang Kalau Dilewatkan`
+];
+
+function poolPembuka(produk){
+  const pool = [];
+  // 1. hook umum + deskripsi umum — tanpa menyebut nama produk sama sekali
+  hookPembuka.forEach(h=>{
+    suffixPembuka.forEach(s=>{ pool.push(h+', '+s); });
+  });
+  // 2. deskripsi umum di depan, nama produk baru muncul di ujung kalimat
+  suffixPembuka.forEach(s=>{
+    tailPembuka.forEach(t=>{ pool.push(s + fillP(t, produk)); });
+  });
+  // 3. nama produk di depan — porsinya sengaja lebih sedikit agar tidak monoton
+  prefixPembuka.forEach(p=>{
+    suffixPembuka.forEach(s=>{ pool.push(fillP(p,produk)+', '+s); });
+  });
+  // 4. kalimat berdiri sendiri dengan posisi nama produk yang beragam
+  pool.push(...standalonePembuka.map(t=>fillP(t,produk)));
+  return pool;
+}
+function poolPromo(produk){
+  const arr = standalonePromo.map(t=>fillP(t,produk));
+  for (let i=0;i<200;i++){
+    const tpl = pick(templatePromoNumeric);
+    arr.push(fillP(tpl(), produk));
+  }
+  return arr;
+}
+
+/* Riwayat rekomendasi disimpan per perangkat agar variasi tidak berulang di sesi berikutnya */
+function loadRiwayat(jenis){
+  try{ return new Set(JSON.parse(localStorage.getItem('riwayat_'+jenis) || '[]')); }
+  catch(e){ return new Set(); }
+}
+function simpanRiwayat(jenis, items){
+  const set = loadRiwayat(jenis);
+  items.forEach(i=>set.add(i));
+  let arr = Array.from(set);
+  if (arr.length > 600) arr = arr.slice(arr.length - 600);
+  try{ localStorage.setItem('riwayat_'+jenis, JSON.stringify(arr)); }catch(e){}
+}
+function resetRiwayat(jenis){
+  try{ localStorage.removeItem('riwayat_'+jenis); }catch(e){}
+  alert(jenis === 'pembuka' ? 'Riwayat rekomendasi kata pembuka direset.' : 'Riwayat rekomendasi kata promo direset.');
+}
+
+function getMaksKarakter(){
+  let n = parseInt(document.getElementById('maksKarakter').value);
+  if (isNaN(n) || n < 10) n = 45;
+  return n;
+}
 
 function rekomendasi(jenis) {
   const ta = document.getElementById(jenis);
+  const produk = document.getElementById('namaProduk').value.trim() || 'Produk';
   const existing = ta.value.trim().split('\n').filter(x=>x);
-  const pool = kamusKreatif[jenis].filter(k=>!existing.includes(k));
-  if (pool.length===0){ alert('Kamus rekomendasi sudah habis untuk kategori ini!'); return; }
-  const tambahan = pool.sort(()=>Math.random()-0.5).slice(0,5);
+  const existingSet = new Set(existing);
+  const riwayat = loadRiwayat(jenis);
+  const maksKar = getMaksKarakter();
+
+  const pool = jenis === 'pembuka' ? poolPembuka(produk) : poolPromo(produk);
+  const kandidat = pool.filter(k => k.length <= maksKar && !existingSet.has(k) && !riwayat.has(k));
+
+  if (kandidat.length === 0) {
+    alert('Variasi baru untuk kategori ini sudah hampir habis (atau semua melebihi batas karakter). Coba naikkan batas karakter atau klik "↺ Reset Riwayat".');
+    return;
+  }
+  const tambahan = acakAmbil(kandidat, Math.min(5, kandidat.length));
   ta.value = existing.concat(tambahan).join('\n');
+  simpanRiwayat(jenis, tambahan);
   hitungMaksKombinasi();
 }
+/* Tombol Generate Otomatis: langsung isi bank kata dengan N variasi baru sekaligus (default 50) */
+function generateOtomatis(jenis) {
+  const produk = document.getElementById('namaProduk').value.trim() || 'Produk';
+  const jumlahInput = document.getElementById(jenis === 'pembuka' ? 'jumlahOtomatisPembuka' : 'jumlahOtomatisPromo');
+  let jumlah = parseInt(jumlahInput.value) || 50;
+  const maksKar = getMaksKarakter();
+
+  const riwayat = loadRiwayat(jenis);
+  const pool = jenis === 'pembuka' ? poolPembuka(produk) : poolPromo(produk);
+  const kandidat = [...new Set(pool)].filter(k => k.length <= maksKar && !riwayat.has(k));
+
+  if (kandidat.length === 0) {
+    alert('Variasi baru untuk kategori ini sudah habis (atau semua melebihi batas karakter). Coba naikkan batas karakter atau klik "↺ Reset Riwayat".');
+    return;
+  }
+  const dipilih = acakAmbil(kandidat, Math.min(jumlah, kandidat.length));
+  document.getElementById(jenis).value = dipilih.join('\n');
+  simpanRiwayat(jenis, dipilih);
+  hitungMaksKombinasi();
+
+  if (dipilih.length < jumlah) {
+    alert(`Hanya berhasil membuat ${dipilih.length} variasi baru (stok variasi mulai menipis). Klik "↺ Reset Riwayat" bila ingin variasi lama boleh muncul lagi.`);
+  }
+}
+/* ====== akhir bank kata kreatif ====== */
 
 function hitungMaksKombinasi() {
   const pembuka = document.getElementById('pembuka').value.trim().split('\n').filter(x=>x);
